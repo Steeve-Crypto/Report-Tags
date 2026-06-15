@@ -1,6 +1,6 @@
 {
-  "name": "Space-Report-0.2.0",
-  "displayName": "Git Sound Report",
+  "name": "Space-Report",
+  "displayName": "Git Space Report",
   "description": "Celebratory adaptive audio feedback for successful Git commands.",
   "version": "0.2.0",
   "publisher": "Haquant",
