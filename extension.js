@@ -333,7 +333,7 @@ async function celebrate(eventName, properties = {}) {
 
 async function setPostHogApiKey() {
   const key = await vscode.window.showInputBox({
-    prompt: 'Enter your PostHog project API key. It will be stored in VS Code SecretStorage, not in the repo.',
+    prompt: 'Enter your PostHog project token/API key. It will be stored in VS Code SecretStorage, not in the repo.',
     password: true,
     ignoreFocusOut: true,
     validateInput: (value) => value && value.trim().length > 0 ? null : 'API key is required.'
@@ -344,12 +344,12 @@ async function setPostHogApiKey() {
   }
 
   await extensionContext.secrets.store(POSTHOG_SECRET_KEY, key.trim());
-  vscode.window.showInformationMessage('PostHog API key saved securely in VS Code SecretStorage.');
+  vscode.window.showInformationMessage('PostHog project token saved securely in VS Code SecretStorage.');
 }
 
 async function clearPostHogApiKey() {
   await extensionContext.secrets.delete(POSTHOG_SECRET_KEY);
-  vscode.window.showInformationMessage('PostHog API key removed from VS Code SecretStorage.');
+  vscode.window.showInformationMessage('PostHog project token removed from VS Code SecretStorage.');
 }
 
 async function recordFeedback(direction) {
@@ -546,10 +546,10 @@ async function capture(event, properties = {}) {
 
   const host = config.get('postHogHost', DEFAULT_POSTHOG_HOST).replace(/\/$/, '');
   const payload = JSON.stringify({
-    api_key: apiKey,
+    token: apiKey,
     event,
-    distinct_id: userId,
     properties: {
+      distinct_id: userId,
       extensionVersion: getExtensionVersion(),
       vscodeVersion: vscode.version,
       platform: process.platform,
@@ -557,7 +557,7 @@ async function capture(event, properties = {}) {
     }
   });
 
-  const request = https.request(`${host}/capture/`, {
+  const request = https.request(`${host}/i/v0/e/`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
