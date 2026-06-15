@@ -59,6 +59,8 @@ Then enable telemetry in user settings:
 
 Do not put the key in `.vscode/settings.json`, `.env`, or any committed file. `.gitignore` excludes common local secret files as a backup.
 
+Do not run the PostHog web-app wizard for this extension. It is designed for framework apps, can add SDK/env-file wiring, and is unnecessary here because the extension sends opt-in capture events directly from VS Code using SecretStorage.
+
 Default sponsor URL: `https://github.com/sponsors/Steeve-Crypto`
 
 ## Intelligent Sound Profiles
