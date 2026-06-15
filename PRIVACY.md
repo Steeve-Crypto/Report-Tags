@@ -2,10 +2,10 @@
 
 Git Sound Report does not send telemetry by default.
 
-PostHog analytics are sent only when both settings are configured:
+PostHog analytics are sent only when telemetry is enabled and a PostHog key is available:
 
 - `git-sound-report.telemetry.enabled`: `true`
-- `git-sound-report.postHogProjectApiKey`: a non-empty PostHog project API key
+- PostHog project API key saved with `Git Sound Report: Set PostHog API Key`
 
 When enabled, events may include:
 
@@ -22,3 +22,5 @@ The extension does not intentionally capture source code, file contents, commit 
 Adaptive sound state is stored locally in VS Code global storage. Voice summaries use local operating-system text-to-speech where available. Team deploy webhooks are disabled by default; if enabled, deploy and major-release summaries are sent to the configured webhook URL with classification metadata such as profile, intent, risk, scale, and momentum.
 
 Disable telemetry at any time by setting `git-sound-report.telemetry.enabled` to `false`.
+
+The recommended key path uses VS Code SecretStorage. Do not store the key in committed workspace settings.

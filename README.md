@@ -41,11 +41,23 @@ The extension uses Python for audio playback because it keeps the MVP small and 
 - `git-sound-report.teamDeploy.enabled`: enable deploy and major-release webhook summaries.
 - `git-sound-report.teamDeploy.webhookUrl`: Slack, Teams, or compatible webhook URL.
 - `git-sound-report.telemetry.enabled`: opt-in analytics switch.
-- `git-sound-report.postHogProjectApiKey`: PostHog project API key.
+- `git-sound-report.postHogProjectApiKey`: legacy fallback only. Prefer `Git Sound Report: Set PostHog API Key`.
 - `git-sound-report.postHogHost`: PostHog capture host.
 - `git-sound-report.sponsorUrl`: sponsor conversion URL.
 
-Telemetry is disabled by default and is not sent unless both `telemetry.enabled` and `postHogProjectApiKey` are configured.
+Telemetry is disabled by default and is not sent unless `telemetry.enabled` is true and a PostHog key has been saved in SecretStorage.
+
+## PostHog Setup
+
+Use the Command Palette command `Git Sound Report: Set PostHog API Key`. The key is stored in VS Code SecretStorage, not in the repo.
+
+Then enable telemetry in user settings:
+
+```json
+"git-sound-report.telemetry.enabled": true
+```
+
+Do not put the key in `.vscode/settings.json`, `.env`, or any committed file. `.gitignore` excludes common local secret files as a backup.
 
 Default sponsor URL: `https://github.com/sponsors/Steeve-Crypto`
 

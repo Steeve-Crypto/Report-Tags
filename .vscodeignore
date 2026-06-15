@@ -1,4 +1,5 @@
 .git/**
+.gitignore
 git-sound-report-extension/**
 native-sound/**
 AGENTS.MD

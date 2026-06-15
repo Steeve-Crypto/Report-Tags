@@ -9,6 +9,7 @@ const EXTENSION_ID = 'git-sound-report';
 const DEFAULT_POSTHOG_HOST = 'https://us.i.posthog.com';
 const GIT_EVENT_DIR = path.join('.git', 'git-sound-report');
 const GIT_EVENT_FILE = path.join(GIT_EVENT_DIR, 'events.log');
+const POSTHOG_SECRET_KEY = 'postHogProjectApiKey';
 
 let output;
 let statusBarItem;
@@ -57,6 +58,8 @@ function registerCommands(context) {
     }),
     vscode.commands.registerCommand('gitSoundReport.feedbackUp', () => recordFeedback('up')),
     vscode.commands.registerCommand('gitSoundReport.feedbackDown', () => recordFeedback('down')),
+    vscode.commands.registerCommand('gitSoundReport.setPostHogApiKey', setPostHogApiKey),
+    vscode.commands.registerCommand('gitSoundReport.clearPostHogApiKey', clearPostHogApiKey),
     vscode.commands.registerCommand('gitSoundReport.showStatus', showStatus)
   );
 }
@@ -256,7 +259,7 @@ function readGitHookEvents(filePath) {
 
 async function showStatus() {
   const config = getConfig();
-  const telemetryEnabled = isTelemetryEnabled(config);
+  const telemetryEnabled = isTelemetryEnabled(config, await getPostHogApiKey(config));
   const message = [
     `Enabled: ${config.get('enabled', true) ? 'yes' : 'no'}`,
     `Telemetry: ${telemetryEnabled ? 'enabled' : 'disabled'}`,
@@ -328,6 +331,27 @@ async function celebrate(eventName, properties = {}) {
   capture('git_success_detected', telemetryProperties);
 }
 
+async function setPostHogApiKey() {
+  const key = await vscode.window.showInputBox({
+    prompt: 'Enter your PostHog project API key. It will be stored in VS Code SecretStorage, not in the repo.',
+    password: true,
+    ignoreFocusOut: true,
+    validateInput: (value) => value && value.trim().length > 0 ? null : 'API key is required.'
+  });
+
+  if (!key) {
+    return;
+  }
+
+  await extensionContext.secrets.store(POSTHOG_SECRET_KEY, key.trim());
+  vscode.window.showInformationMessage('PostHog API key saved securely in VS Code SecretStorage.');
+}
+
+async function clearPostHogApiKey() {
+  await extensionContext.secrets.delete(POSTHOG_SECRET_KEY);
+  vscode.window.showInformationMessage('PostHog API key removed from VS Code SecretStorage.');
+}
+
 async function recordFeedback(direction) {
   const config = getConfig();
   const result = await runPythonControl(config, ['--feedback', direction]);
@@ -342,7 +366,7 @@ async function recordFeedback(direction) {
 }
 
 function isAllowedEvent(eventName, config) {
-  const enabledEvents = config.get('enabledEvents', ['add', 'commit', 'push', 'merge', 'checkout', 'test_sound']);
+  const enabledEvents = config.get('enabledEvents', ['commit', 'push', 'merge', 'checkout', 'test_sound']);
   return enabledEvents.includes(eventName);
 }
 
@@ -513,13 +537,13 @@ function getSoundPath(config) {
   return '';
 }
 
-function capture(event, properties = {}) {
+async function capture(event, properties = {}) {
   const config = getConfig();
-  if (!isTelemetryEnabled(config)) {
+  const apiKey = await getPostHogApiKey(config);
+  if (!isTelemetryEnabled(config, apiKey)) {
     return;
   }
 
-  const apiKey = config.get('postHogProjectApiKey', '');
   const host = config.get('postHogHost', DEFAULT_POSTHOG_HOST).replace(/\/$/, '');
   const payload = JSON.stringify({
     api_key: apiKey,
@@ -549,8 +573,13 @@ function capture(event, properties = {}) {
   request.end();
 }
 
-function isTelemetryEnabled(config) {
-  return Boolean(config.get('telemetry.enabled', false) && config.get('postHogProjectApiKey', ''));
+async function getPostHogApiKey(config) {
+  const secretKey = extensionContext ? await extensionContext.secrets.get(POSTHOG_SECRET_KEY) : '';
+  return secretKey || config.get('postHogProjectApiKey', '');
+}
+
+function isTelemetryEnabled(config, apiKey) {
+  return Boolean(config.get('telemetry.enabled', false) && apiKey);
 }
 
 function getConfig() {

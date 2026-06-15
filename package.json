@@ -3,7 +3,7 @@
   "displayName": "Git Sound Report",
   "description": "Celebratory adaptive audio feedback for successful Git commands.",
   "version": "0.2.0",
-  "publisher": "athena-devtools",
+  "publisher": "Haquant",
   "icon": "assets/icon.png",
   "galleryBanner": {
     "color": "#111827",
@@ -28,7 +28,9 @@
     "onStartupFinished",
     "workspaceContains:.git",
     "onCommand:gitSoundReport.playTestSound",
-    "onCommand:gitSoundReport.showStatus"
+    "onCommand:gitSoundReport.showStatus",
+    "onCommand:gitSoundReport.setPostHogApiKey",
+    "onCommand:gitSoundReport.clearPostHogApiKey"
   ],
   "main": "./extension.js",
   "contributes": {
@@ -67,6 +69,16 @@
         "command": "gitSoundReport.feedbackDown",
         "title": "Git Sound Report: Dislike Last Sound",
         "category": "Git Sound Report"
+      },
+      {
+        "command": "gitSoundReport.setPostHogApiKey",
+        "title": "Git Sound Report: Set PostHog API Key",
+        "category": "Git Sound Report"
+      },
+      {
+        "command": "gitSoundReport.clearPostHogApiKey",
+        "title": "Git Sound Report: Clear PostHog API Key",
+        "category": "Git Sound Report"
       }
     ],
     "configuration": {
@@ -80,7 +92,6 @@
         "git-sound-report.enabledEvents": {
           "type": "array",
           "default": [
-            "add",
             "commit",
             "push",
             "merge",
@@ -138,7 +149,7 @@
         "git-sound-report.postHogProjectApiKey": {
           "type": "string",
           "default": "",
-          "description": "PostHog project API key. Telemetry is disabled until this and telemetry.enabled are set."
+          "description": "Legacy fallback PostHog project API key. Prefer the Set PostHog API Key command, which stores the key in VS Code SecretStorage."
         },
         "git-sound-report.postHogHost": {
           "type": "string",
@@ -174,6 +185,12 @@
         },
         {
           "command": "gitSoundReport.feedbackDown"
+        },
+        {
+          "command": "gitSoundReport.setPostHogApiKey"
+        },
+        {
+          "command": "gitSoundReport.clearPostHogApiKey"
         }
       ]
     }

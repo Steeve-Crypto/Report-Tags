@@ -7,7 +7,7 @@ Before publishing publicly, set these real account values:
 - Marketplace publisher ID: confirm that `athena-devtools` exists in Visual Studio Marketplace publisher management, or replace `publisher` in `package.json`.
 - Repository URL: `https://github.com/Steeve-Crypto/Report-Tags`.
 - Sponsor URL: currently set to `https://github.com/sponsors/Steeve-Crypto`.
-- PostHog project API key: optional. Set `git-sound-report.postHogProjectApiKey` only if you want product analytics.
+- PostHog project API key: optional. Use `Git Sound Report: Set PostHog API Key` so the key is stored in VS Code SecretStorage, not committed settings.
 - Privacy posture: keep telemetry opt-in unless you have reviewed Marketplace expectations and your privacy copy.
 - AI positioning: current adaptive sound is local-first and rule-based. Market it as intelligent/adaptive, not as cloud LLM analysis.
 
@@ -33,7 +33,7 @@ Manual smoke test:
 4. Run `git commit --allow-empty -m "test git sound report"` in the integrated terminal.
 5. Run `git push` from a test branch if you want to verify push detection.
 6. Confirm the sponsor command opens `https://github.com/sponsors/Steeve-Crypto`.
-7. Optional: if PostHog is enabled, confirm events arrive in PostHog.
+7. Optional: run `Git Sound Report: Set PostHog API Key`, enable `git-sound-report.telemetry.enabled`, and confirm events arrive in PostHog.
 
 ## Marketplace Publish
 
