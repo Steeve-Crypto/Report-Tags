@@ -1,0 +1,10 @@
+.git/**
+git-sound-report-extension/**
+native-sound/**
+AGENTS.MD
+MARKETPLACE-LISTING.md
+demo.gif
+git-sound-report-*.vsix
+node_modules/**
+npm-debug.log
+.vscode/**

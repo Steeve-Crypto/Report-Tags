@@ -1,44 +1,48 @@
-# VS Code Marketplace Listing for Git Sound Report
+# VS Code Marketplace Listing
 
-**Display Name:** Git Sound Report
+## Display Name
 
-**Publisher:** athena-devtools (update with your Microsoft account)
+Git Sound Report
 
-**Short Description (for store):** 
-Plays celebratory "report tag" sound effects on successful Git commands like push to GitHub. Gamify your dev workflow and make deployments fun!
+## Short Description
 
-**Full Description (copy to Marketplace):**
+Celebratory audio feedback for successful Git commands, with opt-in analytics and team upgrade paths.
 
-🎉 **Make deploying code feel rewarding!**
+## Full Description
 
-Git Sound Report automatically plays fun victory sound effects ("report tag" style) whenever you successfully run production Git commands such as `git add`, `git commit`, or `git push` to GitHub.
-
-### Why Install?
-- **Boost Productivity & Morale**: Positive audio feedback for every win.
-- **Easy Setup**: Python-based audio, works cross-platform.
-- **Extensible**: Ready for custom sound packs and C++ performance layer.
-- **Freemium**: Free core + premium sounds coming soon.
+Make Git wins feel rewarding. Git Sound Report plays a short celebratory sound when successful Git activity is detected in VS Code.
 
 ### Features
-- Real-time detection of successful Git operations
-- Test sound command in Command Palette
-- Configurable via settings (future)
-- Low overhead
+
+- Plays audio on successful terminal Git commands when VS Code shell integration reports a zero exit code
+- Supports `git add`, `git commit`, `git push`, merge, and checkout
+- Optional Git hooks for reliable local commit, merge, and checkout events
+- VS Code Git API commit detection for source-control UI workflows
+- Status bar control for quick status, test sound, sponsor, and enterprise actions
+- Custom sound file setting
+- Opt-in PostHog telemetry for measuring activation and conversion
+
+### Monetization Path
+
+- Free: core sound feedback and basic configuration
+- Sponsor: direct support button for fans of the extension
+- Pro: premium sound packs, streaks, and custom event audio
+- Enterprise: compiled native addon, custom audio engines, spatial/team deploy sound, and managed team packs
+
+### Privacy
+
+Telemetry is off by default. PostHog events are sent only when users explicitly enable telemetry and configure a PostHog project API key.
 
 ### Quick Start
-1. Install the extension
-2. `pip install playsound`
-3. Place `report_tag_success.mp3` in extension folder or configure path
-4. Run `git push` and celebrate!
 
-**Revenue & Open Source**: Free on Marketplace to maximize stars and adoption. Support via GitHub Sponsors for premium features, custom packs, and analytics.
+1. Install the extension.
+2. Run `Git Sound Report: Play Test Sound`.
+3. Optional: configure `git-sound-report.soundPath`.
+4. Optional: run `Git Sound Report: Install Git Hooks`.
 
-**Keywords**: git, sound, celebration, productivity, gamification, push, deploy
+## Publisher Checklist
 
-**Categories**: Other, Programming Languages, Debuggers
-
-**Target Stars Goal**: 1k+ in first month via viral fun factor.
-
-**Monetization Plan (Athena CTO)**: Drive downloads → GitHub stars → Sponsors + premium upsells. Projected early revenue from engaged dev community.
-
-Submit via `vsce publish` after updating publisher.
+- Replace placeholder repository URLs with the production repository.
+- Add marketplace icon and screenshots.
+- Add a bundled default sound or configure distribution around user-provided sounds.
+- Verify `.vsix` packaging with `npm run package`.

@@ -1,29 +1,33 @@
 #include <napi.h>
+#include <string>
+
 #ifdef _WIN32
-#include <windows.h>
 #include <mmsystem.h>
+#include <windows.h>
 #pragma comment(lib, "winmm.lib")
-#elif __APPLE__
-#include <AppKit/NSSound.h>
-#else
-// Linux placeholder - use libcanberra or similar in production
-#include <stdio.h>
 #endif
 
 Napi::Value PlayReportTag(const Napi::CallbackInfo& info) {
   Napi::Env env = info.Env();
-  
+
 #ifdef _WIN32
-  PlaySound(TEXT("report_tag_success.wav"), NULL, SND_FILENAME | SND_ASYNC);
-#elif __APPLE__
-  // macOS example
-  system("afplay report_tag_success.mp3 &");
+  if (info.Length() < 1 || !info[0].IsString()) {
+    Napi::TypeError::New(env, "Expected a WAV file path").ThrowAsJavaScriptException();
+    return env.Null();
+  }
+
+  std::u16string path = info[0].As<Napi::String>().Utf16Value();
+  BOOL ok = PlaySoundW(
+      reinterpret_cast<LPCWSTR>(path.c_str()),
+      NULL,
+      SND_FILENAME | SND_ASYNC | SND_NODEFAULT);
+
+  return Napi::Boolean::New(env, ok == TRUE);
 #else
-  // Linux
-  system("aplay report_tag_success.wav &");
+  Napi::Error::New(env, "Native addon prototype currently supports Windows WAV playback only")
+      .ThrowAsJavaScriptException();
+  return env.Null();
 #endif
-  
-  return Napi::Boolean::New(env, true);
 }
 
 Napi::Object Init(Napi::Env env, Napi::Object exports) {

@@ -1,33 +1,169 @@
 {
   "name": "git-sound-report",
   "displayName": "Git Sound Report",
-  "description": "Plays celebratory 'report tag' sound effects on successful git production commands (add, commit, push to GitHub). Gamified dev experience!",
-  "version": "0.1.0",
+  "description": "Celebratory audio feedback for successful Git commands, with opt-in analytics and upgrade paths for teams.",
+  "version": "0.2.0",
   "publisher": "athena-devtools",
   "engines": {
     "vscode": "^1.85.0"
   },
-  "categories": ["Other"],
+  "categories": [
+    "Other"
+  ],
+  "keywords": [
+    "git",
+    "sound",
+    "celebration",
+    "productivity",
+    "gamification",
+    "posthog",
+    "developer-experience"
+  ],
   "activationEvents": [
     "onStartupFinished",
-    "workspaceContains:.git"
+    "workspaceContains:.git",
+    "onCommand:gitSoundReport.playTestSound",
+    "onCommand:gitSoundReport.showStatus"
   ],
   "main": "./extension.js",
   "contributes": {
     "commands": [
       {
         "command": "gitSoundReport.playTestSound",
-        "title": "Git Sound Report: Play Test Sound"
+        "title": "Git Sound Report: Play Test Sound",
+        "category": "Git Sound Report"
+      },
+      {
+        "command": "gitSoundReport.showStatus",
+        "title": "Git Sound Report: Show Status",
+        "category": "Git Sound Report"
+      },
+      {
+        "command": "gitSoundReport.toggleEnabled",
+        "title": "Git Sound Report: Toggle Enabled",
+        "category": "Git Sound Report"
+      },
+      {
+        "command": "gitSoundReport.installGitHooks",
+        "title": "Git Sound Report: Install Git Hooks",
+        "category": "Git Sound Report"
+      },
+      {
+        "command": "gitSoundReport.openSponsor",
+        "title": "Git Sound Report: Sponsor",
+        "category": "Git Sound Report"
+      },
+      {
+        "command": "gitSoundReport.openEnterprise",
+        "title": "Git Sound Report: Enterprise Licensing",
+        "category": "Git Sound Report"
       }
-    ]
+    ],
+    "configuration": {
+      "title": "Git Sound Report",
+      "properties": {
+        "git-sound-report.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable celebratory audio for successful Git events."
+        },
+        "git-sound-report.enabledEvents": {
+          "type": "array",
+          "default": [
+            "add",
+            "commit",
+            "push",
+            "merge",
+            "checkout",
+            "test_sound"
+          ],
+          "items": {
+            "type": "string",
+            "enum": [
+              "add",
+              "commit",
+              "push",
+              "merge",
+              "checkout",
+              "test_sound"
+            ]
+          },
+          "description": "Git events that should trigger a sound."
+        },
+        "git-sound-report.soundPath": {
+          "type": "string",
+          "default": "",
+          "description": "Optional absolute path to a custom .wav or .mp3 sound file."
+        },
+        "git-sound-report.pythonPath": {
+          "type": "string",
+          "default": "",
+          "description": "Optional Python executable path. If unset, the extension tries py, python3, and python."
+        },
+        "git-sound-report.telemetry.enabled": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable opt-in product analytics through PostHog."
+        },
+        "git-sound-report.postHogProjectApiKey": {
+          "type": "string",
+          "default": "",
+          "description": "PostHog project API key. Telemetry is disabled until this and telemetry.enabled are set."
+        },
+        "git-sound-report.postHogHost": {
+          "type": "string",
+          "default": "https://us.i.posthog.com",
+          "description": "PostHog capture host."
+        },
+        "git-sound-report.sponsorUrl": {
+          "type": "string",
+          "default": "https://github.com/sponsors/athena-devtools",
+          "description": "Sponsor URL opened by the sponsor command."
+        },
+        "git-sound-report.enterpriseUrl": {
+          "type": "string",
+          "default": "https://github.com/athena-devtools/git-sound-report",
+          "description": "Enterprise licensing URL for native addons and custom audio engines."
+        }
+      }
+    },
+    "menus": {
+      "commandPalette": [
+        {
+          "command": "gitSoundReport.playTestSound"
+        },
+        {
+          "command": "gitSoundReport.showStatus"
+        },
+        {
+          "command": "gitSoundReport.toggleEnabled"
+        },
+        {
+          "command": "gitSoundReport.installGitHooks"
+        },
+        {
+          "command": "gitSoundReport.openSponsor"
+        },
+        {
+          "command": "gitSoundReport.openEnterprise"
+        }
+      ]
+    }
   },
   "scripts": {
+    "lint": "node --check extension.js",
     "package": "vsce package"
   },
-  "keywords": ["git", "sound", "celebration", "productivity", "gamification"],
+  "devDependencies": {
+    "@vscode/vsce": "^3.2.2"
+  },
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/yourusername/git-sound-report"
-  }
+    "url": "https://github.com/athena-devtools/git-sound-report"
+  },
+  "bugs": {
+    "url": "https://github.com/athena-devtools/git-sound-report/issues"
+  },
+  "homepage": "https://github.com/athena-devtools/git-sound-report#readme"
 }

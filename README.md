@@ -1,55 +1,71 @@
-# Git Sound Report VS Code Extension
+# Git Sound Report
 
-Plays a celebratory "report tag" sound on successful `git add`, `git commit`, `git push` etc. to GitHub.
+Git Sound Report adds lightweight audio feedback to successful Git work in VS Code. The free core is intentionally fun: when `git add`, `git commit`, `git push`, merge, or checkout succeeds, the extension plays a report-tag style sound.
 
-## Features
-- Sound on git success (Python backend)
-- Test command in palette
-- Ready for C++ native audio addon
+## What Works
 
-## Setup
-1. `npm install` (if adding deps)
-2. `pip install playsound`
-3. Add `report_tag_success.mp3` to folder
-4. Package: `vsce package`
-5. Install .vsix
-
-Built with Python + JS. C++ for native perf optional.
-# Git Sound Report VS Code Extension
-
-Plays a celebratory 'report tag' sound on successful git add, commit, push to GitHub.
+- Command Palette test sound: `Git Sound Report: Play Test Sound`
+- Successful terminal Git command detection when VS Code shell integration reports command completion
+- Optional repository Git hooks for commit, merge, and checkout events
+- VS Code Git API commit detection for source-control UI workflows
+- Configurable enabled events and custom sound file path
+- Status bar control with quick actions
+- Opt-in PostHog analytics for activation, toggles, detected Git events, sponsor clicks, and enterprise clicks
+- Sponsor and enterprise licensing commands for conversion testing
 
 ## Setup
-1. Install playsound: pip install playsound
-2. Place a sound file (e.g. report_tag.mp3) in the extension folder.
-3. Update play_sound.py to point to it.
-4. Package and install the extension.
 
-## Features
-- Monitors terminal for git success.
-- Uses Python for sound playback.
-- C++ can be integrated via Node addon for native performance (advanced).
+1. Install the extension.
+2. Run `Git Sound Report: Play Test Sound`.
+3. Optional: set `git-sound-report.soundPath` to an absolute `.wav` or `.mp3` path.
+4. Optional: run `Git Sound Report: Install Git Hooks` for more reliable local commit, merge, and checkout detection.
 
-To enhance monitoring, consider git hooks or better terminal parsing.
-# Native C++ Sound Addon (Enterprise)
+The extension uses Python for audio playback because it keeps the MVP small and cross-platform. If Python audio packages are unavailable, it falls back to a system notification sound.
 
-For low-latency, native audio playback without Python dependency.
+## Settings
 
-## Build
+- `git-sound-report.enabled`: master on/off switch.
+- `git-sound-report.enabledEvents`: event allow-list.
+- `git-sound-report.soundPath`: custom sound file.
+- `git-sound-report.pythonPath`: explicit Python executable.
+- `git-sound-report.telemetry.enabled`: opt-in analytics switch.
+- `git-sound-report.postHogProjectApiKey`: PostHog project API key.
+- `git-sound-report.postHogHost`: PostHog capture host.
+- `git-sound-report.sponsorUrl`: sponsor conversion URL.
+- `git-sound-report.enterpriseUrl`: enterprise conversion URL.
+
+Telemetry is disabled by default and is not sent unless both `telemetry.enabled` and `postHogProjectApiKey` are configured.
+
+## Product Model
+
+Free tier:
+
+- Core Git success sounds
+- Manual test command
+- Basic configuration
+- Sponsor button
+
+Pro tier:
+
+- Premium sound packs
+- Streaks and local stats
+- Custom per-event sounds
+- Themeable status bar states
+
+Enterprise tier:
+
+- Compiled native audio addon
+- Custom audio engines, including spatial/team deploy sound
+- Team event routing for release, CI, and deploy events
+- Admin-managed sound packs
+- Privacy-reviewed analytics controls
+
+## Development
+
 ```bash
-cd native-sound
-npm install node-addon-api
-node-gyp configure build
+npm install
+npm run lint
+npm run package
 ```
 
-Then in extension.js:
-```js
-const nativeSound = require('./native-sound/build/Release/soundaddon.node');
-nativeSound.playReportTag();
-```
-
-**Enterprise Benefits**: 
-- Zero Python overhead
-- Better security/compliance
-- Faster response for high-frequency events
-- Custom audio mixing
+Use VS Code's Extension Development Host to test the extension locally. For Git command detection, terminal shell integration must be enabled in VS Code. Git hooks are available as a reliability layer for local repository events.
