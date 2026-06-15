@@ -2,22 +2,27 @@
 
 Git Sound Report adds lightweight audio feedback to successful Git work in VS Code. The free core is intentionally fun: when `git add`, `git commit`, `git push`, merge, or checkout succeeds, the extension plays a report-tag style sound.
 
+![Git Sound Report demo](demo.gif)
+
 ## What Works
 
 - Command Palette test sound: `Git Sound Report: Play Test Sound`
 - Successful terminal Git command detection when VS Code shell integration reports command completion
 - Optional repository Git hooks for commit, merge, and checkout events
 - VS Code Git API commit detection for source-control UI workflows
+- Intelligent local sound profiles based on commit intent, change size, test files, and risky files
+- Bundled default success sound and Marketplace icon
 - Configurable enabled events and custom sound file path
 - Status bar control with quick actions
 - Opt-in PostHog analytics for activation, toggles, detected Git events, sponsor clicks, and enterprise clicks
-- Sponsor and enterprise licensing commands for conversion testing
+- Sponsor command wired to `https://github.com/sponsors/Steeve-Crypto`
+- Enterprise licensing command for conversion testing
 
 ## Setup
 
 1. Install the extension.
 2. Run `Git Sound Report: Play Test Sound`.
-3. Optional: set `git-sound-report.soundPath` to an absolute `.wav` or `.mp3` path.
+3. Optional: set `git-sound-report.soundPath` to an absolute `.wav` or `.mp3` path. If unset, the bundled WAV is used.
 4. Optional: run `Git Sound Report: Install Git Hooks` for more reliable local commit, merge, and checkout detection.
 
 The extension uses Python for audio playback because it keeps the MVP small and cross-platform. If Python audio packages are unavailable, it falls back to a system notification sound.
@@ -27,6 +32,7 @@ The extension uses Python for audio playback because it keeps the MVP small and 
 - `git-sound-report.enabled`: master on/off switch.
 - `git-sound-report.enabledEvents`: event allow-list.
 - `git-sound-report.soundPath`: custom sound file.
+- `git-sound-report.intelligentSound.enabled`: use adaptive bundled sounds instead of one default bundled sound.
 - `git-sound-report.pythonPath`: explicit Python executable.
 - `git-sound-report.telemetry.enabled`: opt-in analytics switch.
 - `git-sound-report.postHogProjectApiKey`: PostHog project API key.
@@ -35,6 +41,22 @@ The extension uses Python for audio playback because it keeps the MVP small and 
 - `git-sound-report.enterpriseUrl`: enterprise conversion URL.
 
 Telemetry is disabled by default and is not sent unless both `telemetry.enabled` and `postHogProjectApiKey` are configured.
+
+Default sponsor URL: `https://github.com/sponsors/Steeve-Crypto`
+
+## Intelligent Sound Profiles
+
+The first AI layer is local-first and rule-based. Git Sound Report inspects Git metadata, not source contents, to choose one of these profiles:
+
+- `tiny_win`
+- `bug_fix`
+- `feature_ship`
+- `risky_change`
+- `deploy_win`
+- `test_green`
+- `major_release`
+
+Signals include commit message keywords, changed file names, file counts, insertion/deletion counts, dependency files, CI files, tests, migrations, auth, billing, database, and security paths. This gives the product an adaptive feel now while leaving room for optional cloud AI later.
 
 ## Product Model
 
@@ -48,6 +70,7 @@ Free tier:
 Pro tier:
 
 - Premium sound packs
+- AI-assisted adaptive sound profiles
 - Streaks and local stats
 - Custom per-event sounds
 - Themeable status bar states

@@ -4,6 +4,8 @@ const fs = require('fs');
 const https = require('https');
 const os = require('os');
 const path = require('path');
+const { analyzeRepository, classifyGitEvent } = require('./gitAnalyzer');
+const { getSoundProfile, getSoundProfilePath } = require('./soundProfiles');
 
 const EXTENSION_ID = 'git-sound-report';
 const DEFAULT_POSTHOG_HOST = 'https://us.i.posthog.com';
@@ -36,7 +38,7 @@ function activate(context) {
 function registerCommands(context) {
   context.subscriptions.push(
     vscode.commands.registerCommand('gitSoundReport.playTestSound', async () => {
-      await celebrate('test_sound', { source: 'command' });
+      await celebrate('test_sound', { source: 'command', analysis: classifyGitEvent({ eventName: 'test_sound', message: 'feature ship test sound' }) });
       vscode.window.showInformationMessage('Git Sound Report test sound played.');
     }),
     vscode.commands.registerCommand('gitSoundReport.toggleEnabled', async () => {
@@ -49,7 +51,7 @@ function registerCommands(context) {
     }),
     vscode.commands.registerCommand('gitSoundReport.installGitHooks', installGitHooks),
     vscode.commands.registerCommand('gitSoundReport.openSponsor', () => {
-      const url = getConfig().get('sponsorUrl', 'https://github.com/sponsors/athena-devtools');
+      const url = getConfig().get('sponsorUrl', 'https://github.com/sponsors/Steeve-Crypto');
       vscode.env.openExternal(vscode.Uri.parse(url));
       capture('sponsor_opened');
     }),
@@ -92,10 +94,15 @@ function registerTerminalDetection(context) {
       return;
     }
 
+    const workspacePath = getWorkspacePathForTerminal(event.terminal);
+    const analysis = await analyzeRepository(workspacePath, gitEvent, commandLine);
+
     await celebrate(gitEvent, {
       source: 'terminal',
       command: sanitizeCommand(commandLine),
-      exitCode
+      exitCode,
+      workspacePath,
+      analysis
     });
   }));
 }
@@ -155,9 +162,11 @@ function observeRepository(context, repo) {
     }
 
     if (previous.head !== next.head && next.head) {
+      const analysis = await analyzeRepository(root, 'commit', '');
       await celebrate('commit', {
         source: 'vscode_git_api',
-        repository: path.basename(root)
+        workspacePath: root,
+        analysis
       });
     }
   });
@@ -242,7 +251,11 @@ function readGitHookEvents(filePath) {
     for (const line of lines) {
       try {
         const event = JSON.parse(line);
-        celebrate(event.event || 'git_success', { source: event.source || 'git_hook' });
+        const eventName = event.event || 'git_success';
+        const workspacePath = getWorkspacePathForFile(filePath);
+        analyzeRepository(workspacePath, eventName, '').then((analysis) => {
+          celebrate(eventName, { source: event.source || 'git_hook', workspacePath, analysis });
+        });
       } catch {
         log(`Ignored malformed hook event: ${line}`);
       }
@@ -258,7 +271,7 @@ async function showStatus() {
   const message = [
     `Enabled: ${config.get('enabled', true) ? 'yes' : 'no'}`,
     `Telemetry: ${telemetryEnabled ? 'enabled' : 'disabled'}`,
-    `Sound: ${getSoundPath(config) || 'system fallback'}`
+    `Sound: ${getSoundPath(config, 'feature_ship') || 'system fallback'}`
   ].join(' | ');
 
   const choice = await vscode.window.showInformationMessage(
@@ -295,10 +308,24 @@ async function celebrate(eventName, properties = {}) {
     return;
   }
 
-  playSound(config);
+  const analysis = properties.analysis || classifyGitEvent({ eventName, command: properties.command });
+  const profile = getSoundProfile(analysis.profile);
+
+  playSound(config, analysis.profile);
   capture('git_success_detected', {
     gitEvent: eventName,
-    ...properties
+    source: properties.source,
+    exitCode: properties.exitCode,
+    soundProfile: analysis.profile,
+    soundProfileLabel: profile.label,
+    intent: analysis.intent,
+    risk: analysis.risk,
+    scale: analysis.scale,
+    fileCount: analysis.fileCount,
+    riskyFileCount: analysis.riskyFileCount,
+    testFileCount: analysis.testFileCount,
+    hasDependencyChange: analysis.hasDependencyChange,
+    hasCiChange: analysis.hasCiChange
   });
 }
 
@@ -348,9 +375,9 @@ function sanitizeCommand(commandLine) {
     .replace(/--password(?:=|\s+)\S+/gi, '--password [redacted]');
 }
 
-function playSound(config) {
+function playSound(config, profileName) {
   const scriptPath = path.join(__dirname, 'play_sound.py');
-  const soundPath = getSoundPath(config);
+  const soundPath = getSoundPath(config, profileName);
   const pythonCandidates = getPythonCandidates(config);
   runPythonSound(scriptPath, soundPath, pythonCandidates, 0);
 }
@@ -388,14 +415,25 @@ function getPythonCandidates(config) {
     .filter((value, index, values) => values.indexOf(value) === index);
 }
 
-function getSoundPath(config) {
+function getSoundPath(config, profileName) {
   const configuredPath = config.get('soundPath', '');
   if (configuredPath && fs.existsSync(configuredPath)) {
     return configuredPath;
   }
 
-  const bundled = path.join(__dirname, 'report_tag_success.mp3');
-  return fs.existsSync(bundled) ? bundled : '';
+  if (config.get('intelligentSound.enabled', true) && profileName) {
+    const profilePath = getSoundProfilePath(__dirname, profileName);
+    if (fs.existsSync(profilePath)) {
+      return profilePath;
+    }
+  }
+
+  const bundledCandidates = [
+    path.join(__dirname, 'assets', 'report_tag_success.wav'),
+    path.join(__dirname, 'report_tag_success.mp3')
+  ];
+
+  return bundledCandidates.find((candidate) => fs.existsSync(candidate)) || '';
 }
 
 function capture(event, properties = {}) {
@@ -461,6 +499,27 @@ function getOrCreateUserId(context) {
   const next = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`;
   context.globalState.update(key, next);
   return next;
+}
+
+function getWorkspacePathForTerminal(terminal) {
+  const cwd = terminal && terminal.creationOptions && terminal.creationOptions.cwd;
+  if (typeof cwd === 'string') {
+    return cwd;
+  }
+  if (cwd && cwd.fsPath) {
+    return cwd.fsPath;
+  }
+  return getFirstWorkspacePath();
+}
+
+function getWorkspacePathForFile(filePath) {
+  const folder = vscode.workspace.getWorkspaceFolder(vscode.Uri.file(filePath));
+  return folder ? folder.uri.fsPath : getFirstWorkspacePath();
+}
+
+function getFirstWorkspacePath() {
+  const folders = vscode.workspace.workspaceFolders || [];
+  return folders.length > 0 ? folders[0].uri.fsPath : '';
 }
 
 function ensureDir(dirPath) {

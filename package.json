@@ -4,6 +4,11 @@
   "description": "Celebratory audio feedback for successful Git commands, with opt-in analytics and upgrade paths for teams.",
   "version": "0.2.0",
   "publisher": "athena-devtools",
+  "icon": "assets/icon.png",
+  "galleryBanner": {
+    "color": "#111827",
+    "theme": "dark"
+  },
   "engines": {
     "vscode": "^1.85.0"
   },
@@ -95,6 +100,11 @@
           "default": "",
           "description": "Optional absolute path to a custom .wav or .mp3 sound file."
         },
+        "git-sound-report.intelligentSound.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Choose a bundled sound profile based on local Git metadata such as commit intent, change size, test files, and risky files."
+        },
         "git-sound-report.pythonPath": {
           "type": "string",
           "default": "",
@@ -117,7 +127,7 @@
         },
         "git-sound-report.sponsorUrl": {
           "type": "string",
-          "default": "https://github.com/sponsors/athena-devtools",
+          "default": "https://github.com/sponsors/Steeve-Crypto",
           "description": "Sponsor URL opened by the sponsor command."
         },
         "git-sound-report.enterpriseUrl": {
