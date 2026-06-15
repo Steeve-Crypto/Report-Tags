@@ -1,0 +1,27 @@
+{
+  "name": "git-sound-report",
+  "displayName": "Git Sound Report",
+  "description": "Plays a sound effect on successful git production commands to GitHub",
+  "version": "0.0.1",
+  "publisher": "yourname",
+  "engines": {
+    "vscode": "^1.80.0"
+  },
+  "categories": ["Other"],
+  "activationEvents": [
+    "onTerminalOpen",
+    "workspaceContains:.git"
+  ],
+  "main": "./extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "gitSoundReport.playTestSound",
+        "title": "Play Test Sound"
+      }
+    ]
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  }
+}
