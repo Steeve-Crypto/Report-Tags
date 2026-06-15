@@ -1,7 +1,7 @@
 {
   "name": "git-sound-report",
   "displayName": "Git Sound Report",
-  "description": "Celebratory audio feedback for successful Git commands, with opt-in analytics and upgrade paths for teams.",
+  "description": "Celebratory adaptive audio feedback for successful Git commands.",
   "version": "0.2.0",
   "publisher": "athena-devtools",
   "icon": "assets/icon.png",
@@ -56,11 +56,6 @@
       {
         "command": "gitSoundReport.openSponsor",
         "title": "Git Sound Report: Sponsor",
-        "category": "Git Sound Report"
-      },
-      {
-        "command": "gitSoundReport.openEnterprise",
-        "title": "Git Sound Report: Enterprise Licensing",
         "category": "Git Sound Report"
       },
       {
@@ -154,11 +149,6 @@
           "type": "string",
           "default": "https://github.com/sponsors/Steeve-Crypto",
           "description": "Sponsor URL opened by the sponsor command."
-        },
-        "git-sound-report.enterpriseUrl": {
-          "type": "string",
-          "default": "https://github.com/athena-devtools/git-sound-report",
-          "description": "Enterprise licensing URL for native addons and custom audio engines."
         }
       }
     },
@@ -180,9 +170,6 @@
           "command": "gitSoundReport.openSponsor"
         },
         {
-          "command": "gitSoundReport.openEnterprise"
-        },
-        {
           "command": "gitSoundReport.feedbackUp"
         },
         {
@@ -202,10 +189,10 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/athena-devtools/git-sound-report"
+    "url": "https://github.com/Steeve-Crypto/Report-Tags"
   },
   "bugs": {
-    "url": "https://github.com/athena-devtools/git-sound-report/issues"
+    "url": "https://github.com/Steeve-Crypto/Report-Tags/issues"
   },
-  "homepage": "https://github.com/athena-devtools/git-sound-report#readme"
+  "homepage": "https://github.com/Steeve-Crypto/Report-Tags#readme"
 }

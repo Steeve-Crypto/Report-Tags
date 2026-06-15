@@ -55,11 +55,6 @@ function registerCommands(context) {
       vscode.env.openExternal(vscode.Uri.parse(url));
       capture('sponsor_opened');
     }),
-    vscode.commands.registerCommand('gitSoundReport.openEnterprise', () => {
-      const url = getConfig().get('enterpriseUrl', 'https://github.com/athena-devtools/git-sound-report');
-      vscode.env.openExternal(vscode.Uri.parse(url));
-      capture('enterprise_opened');
-    }),
     vscode.commands.registerCommand('gitSoundReport.feedbackUp', () => recordFeedback('up')),
     vscode.commands.registerCommand('gitSoundReport.feedbackDown', () => recordFeedback('down')),
     vscode.commands.registerCommand('gitSoundReport.showStatus', showStatus)
@@ -275,7 +270,6 @@ async function showStatus() {
     'Like Sound',
     'Dislike Sound',
     'Sponsor',
-    'Enterprise'
   );
 
   if (choice === 'Play Test') {
@@ -288,8 +282,6 @@ async function showStatus() {
     vscode.commands.executeCommand('gitSoundReport.feedbackDown');
   } else if (choice === 'Sponsor') {
     vscode.commands.executeCommand('gitSoundReport.openSponsor');
-  } else if (choice === 'Enterprise') {
-    vscode.commands.executeCommand('gitSoundReport.openEnterprise');
   }
 }
 

@@ -18,9 +18,8 @@ Git Sound Report adds lightweight audio feedback to successful Git work in VS Co
 - Bundled default success sound and Marketplace icon
 - Configurable enabled events and custom sound file path
 - Status bar control with quick actions
-- Opt-in PostHog analytics for activation, toggles, detected Git events, sponsor clicks, and enterprise clicks
+- Opt-in PostHog analytics for activation, toggles, detected Git events, and sponsor clicks
 - Sponsor command wired to `https://github.com/sponsors/Steeve-Crypto`
-- Enterprise licensing command for conversion testing
 
 ## Setup
 
@@ -45,7 +44,6 @@ The extension uses Python for audio playback because it keeps the MVP small and 
 - `git-sound-report.postHogProjectApiKey`: PostHog project API key.
 - `git-sound-report.postHogHost`: PostHog capture host.
 - `git-sound-report.sponsorUrl`: sponsor conversion URL.
-- `git-sound-report.enterpriseUrl`: enterprise conversion URL.
 
 Telemetry is disabled by default and is not sent unless both `telemetry.enabled` and `postHogProjectApiKey` are configured.
 
@@ -90,14 +88,7 @@ Pro tier:
 - Custom per-event sounds
 - Themeable status bar states
 
-Enterprise tier:
-
-- Compiled native audio addon
-- Custom audio engines, including spatial/team deploy sound
-- Team event routing for release, CI, and deploy events
-- Team deploy webhook summaries
-- Admin-managed sound packs
-- Privacy-reviewed analytics controls
+Future paid tiers can add premium sound packs, native audio, and managed team features after the public MVP has traction.
 
 ## Development
 
@@ -108,3 +99,5 @@ npm run package
 ```
 
 Use VS Code's Extension Development Host to test the extension locally. For Git command detection, terminal shell integration must be enabled in VS Code. Git hooks are available as a reliability layer for local repository events.
+
+Repository: `https://github.com/Steeve-Crypto/Report-Tags`

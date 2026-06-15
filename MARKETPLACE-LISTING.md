@@ -6,7 +6,7 @@ Git Sound Report
 
 ## Short Description
 
-Celebratory audio feedback for successful Git commands, with opt-in analytics and team upgrade paths.
+Celebratory adaptive audio feedback for successful Git commands.
 
 ## Full Description
 
@@ -18,7 +18,7 @@ Make Git wins feel rewarding. Git Sound Report plays a short celebratory sound w
 - Supports `git add`, `git commit`, `git push`, merge, and checkout
 - Optional Git hooks for reliable local commit, merge, and checkout events
 - VS Code Git API commit detection for source-control UI workflows
-- Status bar control for quick status, test sound, sponsor, and enterprise actions
+- Status bar control for quick status, test sound, sponsor, and sound feedback actions
 - Custom sound file setting
 - Opt-in PostHog telemetry for measuring activation and conversion
 
@@ -26,8 +26,7 @@ Make Git wins feel rewarding. Git Sound Report plays a short celebratory sound w
 
 - Free: core sound feedback and basic configuration
 - Sponsor: direct support button for fans of the extension
-- Pro: premium sound packs, streaks, and custom event audio
-- Enterprise: compiled native addon, custom audio engines, spatial/team deploy sound, and managed team packs
+- Future paid options: premium sound packs, custom event audio, and native audio
 
 ### Privacy
 
@@ -42,7 +41,6 @@ Telemetry is off by default. PostHog events are sent only when users explicitly 
 
 ## Publisher Checklist
 
-- Replace placeholder repository URLs with the production repository.
-- Add marketplace icon and screenshots.
-- Add a bundled default sound or configure distribution around user-provided sounds.
+- Confirm repository URL is `https://github.com/Steeve-Crypto/Report-Tags`.
+- Add screenshots if needed.
 - Verify `.vsix` packaging with `npm run package`.

@@ -5,10 +5,9 @@
 Before publishing publicly, set these real account values:
 
 - Marketplace publisher ID: confirm that `athena-devtools` exists in Visual Studio Marketplace publisher management, or replace `publisher` in `package.json`.
-- Repository URL: replace `https://github.com/athena-devtools/git-sound-report` if the production repo is under another account.
+- Repository URL: `https://github.com/Steeve-Crypto/Report-Tags`.
 - Sponsor URL: currently set to `https://github.com/sponsors/Steeve-Crypto`.
-- Enterprise URL: replace `git-sound-report.enterpriseUrl` with a real landing page, GitHub discussion, email form, or Stripe checkout page.
-- PostHog project API key: set `git-sound-report.postHogProjectApiKey` after creating a PostHog project.
+- PostHog project API key: optional. Set `git-sound-report.postHogProjectApiKey` only if you want product analytics.
 - Privacy posture: keep telemetry opt-in unless you have reviewed Marketplace expectations and your privacy copy.
 - AI positioning: current adaptive sound is local-first and rule-based. Market it as intelligent/adaptive, not as cloud LLM analysis.
 
@@ -34,7 +33,7 @@ Manual smoke test:
 4. Run `git commit --allow-empty -m "test git sound report"` in the integrated terminal.
 5. Run `git push` from a test branch if you want to verify push detection.
 6. Confirm the sponsor command opens `https://github.com/sponsors/Steeve-Crypto`.
-7. If PostHog is enabled, confirm events arrive in PostHog.
+7. Optional: if PostHog is enabled, confirm events arrive in PostHog.
 
 ## Marketplace Publish
 
@@ -43,7 +42,7 @@ Microsoft's official VS Code docs describe two public paths:
 - Package with `vsce package` and upload the `.vsix` manually in Marketplace publisher management.
 - Publish from the CLI with `vsce publish`.
 
-For a first launch, manual upload is usually easier to control:
+For this first launch, use manual upload. It is easier to control and avoids setting up CI credentials before the extension is proven.
 
 1. Create or verify the Visual Studio Marketplace publisher.
 2. Confirm `publisher` in `package.json` exactly matches that publisher ID.
@@ -51,7 +50,7 @@ For a first launch, manual upload is usually easier to control:
 4. Upload `git-sound-report-0.2.0.vsix` in Marketplace publisher management.
 5. Review the rendered README, icon, category, and links before making it public.
 
-For CLI publishing:
+For CLI publishing later:
 
 ```bash
 npx vsce login <publisher-id>
@@ -62,7 +61,7 @@ Microsoft recommends Entra ID based automated publishing for CI/CD. Global Azure
 
 ## GitHub Launch
 
-1. Push the source repo publicly.
+1. Push the source repo publicly to `https://github.com/Steeve-Crypto/Report-Tags`.
 2. Create a GitHub release named `v0.2.0`.
 3. Attach `git-sound-report-0.2.0.vsix`.
 4. Add install instructions for Marketplace and VSIX users.
@@ -73,7 +72,7 @@ Microsoft recommends Entra ID based automated publishing for CI/CD. Global Azure
 
 Short post:
 
-> I launched Git Sound Report, a VS Code extension that plays a quick celebratory sound when Git commands succeed. Free core, opt-in analytics, sponsor support, and an enterprise path for custom/native audio engines.
+> I launched Git Sound Report, a VS Code extension that plays a quick celebratory sound when Git commands succeed. Free core, adaptive local sounds, optional analytics, and sponsor support.
 
 CTA:
 
@@ -85,8 +84,8 @@ AI/adaptive version:
 
 ## First 7 Days
 
-- Track installs, activation, test sound, Git success events, sponsor clicks, and enterprise clicks.
+- Track installs, activation, test sound, Git success events, and sponsor clicks if PostHog is enabled.
 - Ask early users which sound packs they want.
 - Publish one demo GIF or short video.
-- Open GitHub issues for Pro sound packs, streaks, and enterprise native audio.
+- Open GitHub issues for premium sound packs, streaks, and native audio.
 - Do not add default telemetry until privacy and consent are fully reviewed.
