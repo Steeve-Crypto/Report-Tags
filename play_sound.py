@@ -5,6 +5,8 @@ import platform
 import re
 import subprocess
 import sys
+import urllib.request
+from datetime import date, datetime, timezone
 
 
 SOUND_PROFILES = {
@@ -44,10 +46,21 @@ TEST_FILE_PATTERNS = [
 
 def main():
     args = parse_args()
+    if args.feedback:
+        print(json.dumps(record_feedback(args)), flush=True)
+        return
+
+    state = load_state(args.state_path)
     analysis = analyze(args)
+    apply_personalization(analysis, state)
+    apply_momentum(analysis, state, args.event)
+    save_state(args.state_path, state)
+
     sound_path = choose_sound_path(args, analysis["profile"])
     if not args.no_play:
         play_sound(sound_path)
+        maybe_speak_summary(args, analysis)
+        maybe_send_team_deploy(args, analysis)
     print(json.dumps(analysis), flush=True)
 
 
@@ -59,6 +72,12 @@ def parse_args():
     parser.add_argument("--extension-dir", default=os.path.dirname(os.path.abspath(__file__)))
     parser.add_argument("--sound-path", default="")
     parser.add_argument("--intelligent", default="true")
+    parser.add_argument("--state-path", default="")
+    parser.add_argument("--voice", default="false")
+    parser.add_argument("--team-webhook-url", default="")
+    parser.add_argument("--team-enabled", default="false")
+    parser.add_argument("--feedback", choices=["up", "down"], default="")
+    parser.add_argument("--profile", default="")
     parser.add_argument("--no-play", action="store_true", help="Classify and print JSON without playing audio")
     return parser.parse_args()
 
@@ -87,10 +106,12 @@ def build_analysis(profile, intent, risk, scale, insights, files, stats):
     selected = SOUND_PROFILES.get(profile, SOUND_PROFILES["feature_ship"])
     return {
         "profile": profile,
+        "baseProfile": profile,
         "profileLabel": selected["label"],
         "intent": intent,
         "risk": risk,
         "scale": scale,
+        "summary": build_summary(intent, risk, scale, profile),
         "fileCount": len(files),
         "filesChanged": int(stats.get("files_changed", 0)),
         "insertions": int(stats.get("insertions", 0)),
@@ -99,7 +120,30 @@ def build_analysis(profile, intent, risk, scale, insights, files, stats):
         "testFileCount": int(insights.get("test_file_count", 0)),
         "hasDependencyChange": bool(insights.get("has_dependency_change", False)),
         "hasCiChange": bool(insights.get("has_ci_change", False)),
+        "streakCount": 0,
+        "todayCount": 0,
+        "momentumLabel": "starting",
+        "personalized": False,
+        "feedbackScore": 0,
     }
+
+
+def build_summary(intent, risk, scale, profile):
+    if profile == "risky_change":
+        return "Risky change completed."
+    if profile == "major_release":
+        return "Major release completed."
+    if profile == "deploy_win":
+        return "Deployment pushed."
+    if profile == "test_green":
+        return "Test work completed."
+    if profile == "bug_fix":
+        return "Bug fix committed."
+    if profile == "tiny_win":
+        return "Small Git win completed."
+    if intent == "feature":
+        return "Feature work committed."
+    return f"{scale.title()} {risk} risk Git success."
 
 
 def inspect_files(files):
@@ -198,6 +242,180 @@ def choose_profile(event_name, intent, risk, scale, insights, text):
     if event_name == "add" or intent == "docs":
         return "tiny_win"
     return "feature_ship"
+
+
+def load_state(state_path):
+    if not state_path or not os.path.exists(state_path):
+        return default_state()
+    try:
+        with open(state_path, "r", encoding="utf-8") as state_file:
+            loaded = json.load(state_file)
+        state = default_state()
+        state.update(loaded if isinstance(loaded, dict) else {})
+        state.setdefault("profile_feedback", {})
+        state.setdefault("daily_counts", {})
+        return state
+    except Exception:
+        return default_state()
+
+
+def default_state():
+    return {
+        "total_events": 0,
+        "current_streak": 0,
+        "last_event_date": "",
+        "daily_counts": {},
+        "profile_feedback": {},
+        "last_profile": "",
+        "last_summary": "",
+    }
+
+
+def save_state(state_path, state):
+    if not state_path:
+        return
+    try:
+        os.makedirs(os.path.dirname(state_path), exist_ok=True)
+        with open(state_path, "w", encoding="utf-8") as state_file:
+            json.dump(state, state_file, indent=2, sort_keys=True)
+    except Exception:
+        pass
+
+
+def apply_personalization(analysis, state):
+    feedback = state.get("profile_feedback", {})
+    base_profile = analysis["profile"]
+    score = int(feedback.get(base_profile, 0))
+    analysis["feedbackScore"] = score
+
+    if score <= -2 and base_profile not in {"risky_change", "major_release"}:
+        analysis["profile"] = "tiny_win"
+        analysis["profileLabel"] = SOUND_PROFILES["tiny_win"]["label"]
+        analysis["personalized"] = True
+    elif score >= 3 and base_profile == "tiny_win":
+        analysis["profile"] = "feature_ship"
+        analysis["profileLabel"] = SOUND_PROFILES["feature_ship"]["label"]
+        analysis["personalized"] = True
+
+
+def apply_momentum(analysis, state, event_name):
+    today = date.today().isoformat()
+    previous_date = state.get("last_event_date", "")
+
+    state["total_events"] = int(state.get("total_events", 0)) + 1
+    state["daily_counts"][today] = int(state.get("daily_counts", {}).get(today, 0)) + 1
+
+    if previous_date == today:
+        state["current_streak"] = int(state.get("current_streak", 0)) + 1
+    else:
+        state["current_streak"] = 1
+
+    state["last_event_date"] = today
+    state["last_profile"] = analysis["profile"]
+    state["last_summary"] = analysis["summary"]
+    state["last_event"] = event_name
+    state["last_event_at"] = datetime.now(timezone.utc).isoformat()
+
+    analysis["streakCount"] = state["current_streak"]
+    analysis["todayCount"] = state["daily_counts"][today]
+    analysis["momentumLabel"] = momentum_label(state["current_streak"], analysis["todayCount"])
+    if state["current_streak"] >= 5 and analysis["profile"] == "tiny_win":
+        analysis["profile"] = "feature_ship"
+        analysis["profileLabel"] = SOUND_PROFILES["feature_ship"]["label"]
+        analysis["personalized"] = True
+
+
+def momentum_label(streak_count, today_count):
+    if streak_count >= 10:
+        return "shipping_spree"
+    if streak_count >= 5:
+        return "hot_streak"
+    if today_count >= 3:
+        return "building_momentum"
+    return "steady"
+
+
+def record_feedback(args):
+    state = load_state(args.state_path)
+    profile = args.profile or state.get("last_profile") or "feature_ship"
+    delta = 1 if args.feedback == "up" else -1
+    feedback = state.setdefault("profile_feedback", {})
+    feedback[profile] = int(feedback.get(profile, 0)) + delta
+    state["last_feedback_at"] = datetime.now(timezone.utc).isoformat()
+    save_state(args.state_path, state)
+    return {
+        "feedback": args.feedback,
+        "profile": profile,
+        "feedbackScore": feedback[profile],
+    }
+
+
+def maybe_speak_summary(args, analysis):
+    if str(args.voice).lower() not in {"1", "true", "yes", "on"}:
+        return
+    speak_text(analysis.get("summary") or "Git success.")
+
+
+def speak_text(text):
+    safe_text = re.sub(r"[^a-zA-Z0-9 .,:;!?_-]", "", text)[:120]
+    if not safe_text:
+        return
+    system = platform.system()
+    try:
+        if system == "Windows":
+            escaped_text = safe_text.replace("'", "''")
+            command = (
+                "Add-Type -AssemblyName System.Speech; "
+                "$s = New-Object System.Speech.Synthesis.SpeechSynthesizer; "
+                f"$s.SpeakAsync('{escaped_text}') | Out-Null"
+            )
+            subprocess.Popen(["powershell", "-NoProfile", "-Command", command], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        elif system == "Darwin":
+            subprocess.Popen(["say", safe_text], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        else:
+            subprocess.Popen(["spd-say", safe_text], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    except Exception:
+        pass
+
+
+def maybe_send_team_deploy(args, analysis):
+    if should_send_team_deploy(args, analysis):
+        send_team_webhook(args.team_webhook_url, analysis)
+
+
+def should_send_team_deploy(args, analysis):
+    if str(args.team_enabled).lower() not in {"1", "true", "yes", "on"}:
+        return False
+    if not args.team_webhook_url:
+        return False
+    return analysis.get("intent") == "deploy" or analysis.get("profile") in {"deploy_win", "major_release"}
+
+
+def send_team_webhook(webhook_url, analysis):
+    payload = json.dumps(
+        {
+            "text": analysis.get("summary", "Git deployment completed."),
+            "gitSoundReport": {
+                "profile": analysis.get("profile"),
+                "intent": analysis.get("intent"),
+                "risk": analysis.get("risk"),
+                "scale": analysis.get("scale"),
+                "streakCount": analysis.get("streakCount"),
+                "todayCount": analysis.get("todayCount"),
+                "momentumLabel": analysis.get("momentumLabel"),
+            },
+        }
+    ).encode("utf-8")
+    try:
+        request = urllib.request.Request(
+            webhook_url,
+            data=payload,
+            headers={"Content-Type": "application/json", "User-Agent": "git-sound-report"},
+            method="POST",
+        )
+        urllib.request.urlopen(request, timeout=2.5).close()
+    except Exception:
+        pass
 
 
 def get_last_commit_message(workspace):

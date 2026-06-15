@@ -1,4 +1,5 @@
 import unittest
+from types import SimpleNamespace
 
 import play_sound
 
@@ -48,6 +49,37 @@ class AdaptiveSoundClassificationTests(unittest.TestCase):
         analysis = self.classify(message="feat: initial launch", files=["src/app.js"], stats={"files_changed": 24, "insertions": 1400, "deletions": 20})
         self.assertEqual(analysis["profile"], "major_release")
         self.assertEqual(analysis["scale"], "major")
+
+    def test_feedback_can_personalize_soft_profile(self):
+        state = play_sound.default_state()
+        state["profile_feedback"]["bug_fix"] = -2
+        analysis = self.classify(message="fix sidebar issue", files=["src/sidebar.js"], stats={"files_changed": 1, "insertions": 4, "deletions": 1})
+        play_sound.apply_personalization(analysis, state)
+        self.assertEqual(analysis["baseProfile"], "bug_fix")
+        self.assertEqual(analysis["profile"], "tiny_win")
+        self.assertTrue(analysis["personalized"])
+
+    def test_momentum_tracks_streak_and_today_count(self):
+        state = play_sound.default_state()
+        first = self.classify(message="docs: update readme", files=["README.md"])
+        second = self.classify(message="fix sidebar issue", files=["src/sidebar.js"])
+        play_sound.apply_momentum(first, state, "commit")
+        play_sound.apply_momentum(second, state, "commit")
+        self.assertEqual(second["streakCount"], 2)
+        self.assertEqual(second["todayCount"], 2)
+        self.assertEqual(second["momentumLabel"], "steady")
+
+    def test_voice_summary_for_risky_change(self):
+        analysis = self.classify(message="fix auth payment bug", files=["src/auth/login.js"], stats={"files_changed": 1, "insertions": 5, "deletions": 2})
+        self.assertEqual(analysis["summary"], "Risky change completed.")
+
+    def test_team_deploy_requires_enabled_webhook_and_deploy(self):
+        deploy = self.classify(event_name="push", message="release dashboard", files=["src/dashboard.js"])
+        args = SimpleNamespace(team_enabled="true", team_webhook_url="https://example.invalid/webhook")
+        self.assertTrue(play_sound.should_send_team_deploy(args, deploy))
+
+        args.team_enabled = "false"
+        self.assertFalse(play_sound.should_send_team_deploy(args, deploy))
 
 
 if __name__ == "__main__":

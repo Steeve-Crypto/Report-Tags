@@ -13,11 +13,13 @@ const GIT_EVENT_FILE = path.join(GIT_EVENT_DIR, 'events.log');
 let output;
 let statusBarItem;
 let userId;
+let extensionContext;
 const repoSnapshots = new Map();
 const recentEvents = new Map();
 const hookFileOffsets = new Map();
 
 function activate(context) {
+  extensionContext = context;
   output = vscode.window.createOutputChannel('Git Sound Report');
   context.subscriptions.push(output);
 
@@ -58,6 +60,8 @@ function registerCommands(context) {
       vscode.env.openExternal(vscode.Uri.parse(url));
       capture('enterprise_opened');
     }),
+    vscode.commands.registerCommand('gitSoundReport.feedbackUp', () => recordFeedback('up')),
+    vscode.commands.registerCommand('gitSoundReport.feedbackDown', () => recordFeedback('down')),
     vscode.commands.registerCommand('gitSoundReport.showStatus', showStatus)
   );
 }
@@ -268,6 +272,8 @@ async function showStatus() {
     message,
     'Play Test',
     'Install Hooks',
+    'Like Sound',
+    'Dislike Sound',
     'Sponsor',
     'Enterprise'
   );
@@ -276,6 +282,10 @@ async function showStatus() {
     vscode.commands.executeCommand('gitSoundReport.playTestSound');
   } else if (choice === 'Install Hooks') {
     vscode.commands.executeCommand('gitSoundReport.installGitHooks');
+  } else if (choice === 'Like Sound') {
+    vscode.commands.executeCommand('gitSoundReport.feedbackUp');
+  } else if (choice === 'Dislike Sound') {
+    vscode.commands.executeCommand('gitSoundReport.feedbackDown');
   } else if (choice === 'Sponsor') {
     vscode.commands.executeCommand('gitSoundReport.openSponsor');
   } else if (choice === 'Enterprise') {
@@ -324,6 +334,19 @@ async function celebrate(eventName, properties = {}) {
   };
 
   capture('git_success_detected', telemetryProperties);
+}
+
+async function recordFeedback(direction) {
+  const config = getConfig();
+  const result = await runPythonControl(config, ['--feedback', direction]);
+  if (result) {
+    vscode.window.showInformationMessage(`Git Sound Report ${direction === 'up' ? 'liked' : 'disliked'} ${result.profile} sound.`);
+    capture('sound_feedback_recorded', {
+      direction,
+      soundProfile: result.profile,
+      feedbackScore: result.feedbackScore
+    });
+  }
 }
 
 function isAllowedEvent(eventName, config) {
@@ -390,6 +413,13 @@ function runPythonSound(scriptPath, soundPath, candidates, index, eventContext) 
   args.push('--event', eventContext.eventName || 'git_success');
   args.push('--extension-dir', __dirname);
   args.push('--intelligent', String(getConfig().get('intelligentSound.enabled', true)));
+  args.push('--state-path', getStatePath());
+  args.push('--voice', String(getConfig().get('voice.enabled', false)));
+  args.push('--team-enabled', String(getConfig().get('teamDeploy.enabled', false)));
+  const teamWebhookUrl = getConfig().get('teamDeploy.webhookUrl', '');
+  if (teamWebhookUrl) {
+    args.push('--team-webhook-url', teamWebhookUrl);
+  }
   if (eventContext.workspacePath) {
     args.push('--workspace', eventContext.workspacePath);
   }
@@ -419,6 +449,45 @@ function runPythonSound(scriptPath, soundPath, candidates, index, eventContext) 
       runPythonSound(scriptPath, soundPath, candidates, index + 1, eventContext).then(resolve);
     });
 
+    child.on('close', () => {
+      resolve(parsePythonAnalysis(stdout));
+    });
+  });
+}
+
+function runPythonControl(config, extraArgs) {
+  const scriptPath = path.join(__dirname, 'play_sound.py');
+  const pythonCandidates = getPythonCandidates(config);
+  return runPythonControlAttempt(scriptPath, pythonCandidates, 0, extraArgs);
+}
+
+function runPythonControlAttempt(scriptPath, candidates, index, extraArgs) {
+  const executable = candidates[index];
+  if (!executable) {
+    log('No Python executable worked for control command.');
+    return Promise.resolve(null);
+  }
+
+  const args = executable === 'py' ? ['-3', scriptPath] : [scriptPath];
+  args.push('--state-path', getStatePath());
+  args.push('--no-play');
+  args.push(...extraArgs);
+
+  return new Promise((resolve) => {
+    let stdout = '';
+    const child = spawn(executable, args, {
+      cwd: __dirname,
+      windowsHide: true,
+      shell: false
+    });
+    child.stdout.on('data', (data) => {
+      stdout += String(data);
+    });
+    child.stderr.on('data', (data) => log(String(data).trim()));
+    child.on('error', (error) => {
+      log(`Python control failed with ${executable}: ${error.message}`);
+      runPythonControlAttempt(scriptPath, candidates, index + 1, extraArgs).then(resolve);
+    });
     child.on('close', () => {
       resolve(parsePythonAnalysis(stdout));
     });
@@ -536,6 +605,13 @@ function getWorkspacePathForFile(filePath) {
 function getFirstWorkspacePath() {
   const folders = vscode.workspace.workspaceFolders || [];
   return folders.length > 0 ? folders[0].uri.fsPath : '';
+}
+
+function getStatePath() {
+  const storageUri = extensionContext && extensionContext.globalStorageUri;
+  const storagePath = storageUri ? storageUri.fsPath : path.join(os.homedir(), '.git-sound-report');
+  ensureDir(storagePath);
+  return path.join(storagePath, 'ai-state.json');
 }
 
 function ensureDir(dirPath) {

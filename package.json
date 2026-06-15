@@ -62,6 +62,16 @@
         "command": "gitSoundReport.openEnterprise",
         "title": "Git Sound Report: Enterprise Licensing",
         "category": "Git Sound Report"
+      },
+      {
+        "command": "gitSoundReport.feedbackUp",
+        "title": "Git Sound Report: Like Last Sound",
+        "category": "Git Sound Report"
+      },
+      {
+        "command": "gitSoundReport.feedbackDown",
+        "title": "Git Sound Report: Dislike Last Sound",
+        "category": "Git Sound Report"
       }
     ],
     "configuration": {
@@ -110,6 +120,21 @@
           "default": "",
           "description": "Optional Python executable path. If unset, the extension tries py, python3, and python."
         },
+        "git-sound-report.voice.enabled": {
+          "type": "boolean",
+          "default": false,
+          "description": "Speak a short local AI commit summary after successful Git events."
+        },
+        "git-sound-report.teamDeploy.enabled": {
+          "type": "boolean",
+          "default": false,
+          "description": "Send deploy and major-release summaries to a configured team webhook."
+        },
+        "git-sound-report.teamDeploy.webhookUrl": {
+          "type": "string",
+          "default": "",
+          "description": "Optional Slack, Teams, or compatible webhook URL for team deploy sound summaries."
+        },
         "git-sound-report.telemetry.enabled": {
           "type": "boolean",
           "default": false,
@@ -156,6 +181,12 @@
         },
         {
           "command": "gitSoundReport.openEnterprise"
+        },
+        {
+          "command": "gitSoundReport.feedbackUp"
+        },
+        {
+          "command": "gitSoundReport.feedbackDown"
         }
       ]
     }

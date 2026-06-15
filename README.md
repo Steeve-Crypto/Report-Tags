@@ -11,6 +11,10 @@ Git Sound Report adds lightweight audio feedback to successful Git work in VS Co
 - Optional repository Git hooks for commit, merge, and checkout events
 - VS Code Git API commit detection for source-control UI workflows
 - Python-powered intelligent local sound profiles based on commit intent, change size, test files, and risky files
+- Optional local voice summaries for commit/deploy outcomes
+- Local streak and momentum tracking
+- Like/dislike feedback so sound profiles can adapt to the user
+- Optional team deploy webhook summaries for deploys and major releases
 - Bundled default success sound and Marketplace icon
 - Configurable enabled events and custom sound file path
 - Status bar control with quick actions
@@ -34,6 +38,9 @@ The extension uses Python for audio playback because it keeps the MVP small and 
 - `git-sound-report.soundPath`: custom sound file.
 - `git-sound-report.intelligentSound.enabled`: use adaptive bundled sounds instead of one default bundled sound.
 - `git-sound-report.pythonPath`: explicit Python executable.
+- `git-sound-report.voice.enabled`: speak a short local commit/deploy summary.
+- `git-sound-report.teamDeploy.enabled`: enable deploy and major-release webhook summaries.
+- `git-sound-report.teamDeploy.webhookUrl`: Slack, Teams, or compatible webhook URL.
 - `git-sound-report.telemetry.enabled`: opt-in analytics switch.
 - `git-sound-report.postHogProjectApiKey`: PostHog project API key.
 - `git-sound-report.postHogHost`: PostHog capture host.
@@ -58,6 +65,13 @@ The first AI layer is Python-powered, local-first, and rule-based. Git Sound Rep
 
 Signals include commit message keywords, changed file names, file counts, insertion/deletion counts, dependency files, CI files, tests, migrations, auth, billing, database, and security paths. The VS Code JavaScript layer only captures editor events and spawns Python; the intelligence and audio choice live in `play_sound.py`.
 
+Additional AI behaviors:
+
+- Voice summaries: optional local text-to-speech such as "Bug fix committed" or "Deployment pushed."
+- Streak and momentum: local state tracks current streak, today's count, and momentum labels.
+- Personalized learning: like/dislike commands adjust future profile choices for low-risk sounds.
+- Team deploy sound: optional webhook sends deploy and major-release summaries to team tools.
+
 ## Product Model
 
 Free tier:
@@ -71,6 +85,7 @@ Pro tier:
 
 - Premium sound packs
 - AI-assisted adaptive sound profiles
+- Voice summaries and personalized sound learning
 - Streaks and local stats
 - Custom per-event sounds
 - Themeable status bar states
@@ -80,6 +95,7 @@ Enterprise tier:
 - Compiled native audio addon
 - Custom audio engines, including spatial/team deploy sound
 - Team event routing for release, CI, and deploy events
+- Team deploy webhook summaries
 - Admin-managed sound packs
 - Privacy-reviewed analytics controls
 
