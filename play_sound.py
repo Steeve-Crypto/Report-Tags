@@ -46,7 +46,8 @@ def main():
     args = parse_args()
     analysis = analyze(args)
     sound_path = choose_sound_path(args, analysis["profile"])
-    play_sound(sound_path)
+    if not args.no_play:
+        play_sound(sound_path)
     print(json.dumps(analysis), flush=True)
 
 
@@ -58,6 +59,7 @@ def parse_args():
     parser.add_argument("--extension-dir", default=os.path.dirname(os.path.abspath(__file__)))
     parser.add_argument("--sound-path", default="")
     parser.add_argument("--intelligent", default="true")
+    parser.add_argument("--no-play", action="store_true", help="Classify and print JSON without playing audio")
     return parser.parse_args()
 
 

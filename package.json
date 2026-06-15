@@ -162,6 +162,7 @@
   },
   "scripts": {
     "lint": "node --check extension.js",
+    "test": "py -3 -m unittest discover -s tests",
     "package": "vsce package"
   },
   "devDependencies": {

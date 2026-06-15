@@ -11,6 +11,7 @@
 - Added configurable event allow-list, sound path, Python path, PostHog host/key, sponsor URL, and enterprise URL.
 - Added bundled WAV success sound and Marketplace PNG icon.
 - Added Python-powered local-first intelligent sound profiles for tiny wins, fixes, features, risky changes, deploys, tests, and major releases.
+- Added Python regression tests for adaptive sound classification.
 - Added privacy policy, license, launch guide, and native-addon enterprise prototype documentation.
 
 ## 0.1.0
