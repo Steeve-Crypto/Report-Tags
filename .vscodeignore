@@ -6,6 +6,7 @@ AGENTS.MD
 MARKETPLACE-LISTING.md
 LAUNCH.md
 git-sound-report-*.vsix
+report-tags-*.vsix
 node_modules/**
 __pycache__/**
 tests/**

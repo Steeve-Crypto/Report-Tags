@@ -22,7 +22,7 @@ npm run package
 Install the packaged VSIX locally:
 
 ```bash
-code --install-extension git-sound-report-0.2.0.vsix
+code --install-extension report-tags-0.2.0.vsix
 ```
 
 Manual smoke test:
@@ -47,7 +47,7 @@ For this first launch, use manual upload. It is easier to control and avoids set
 1. Create or verify the Visual Studio Marketplace publisher.
 2. Confirm `publisher` in `package.json` exactly matches that publisher ID.
 3. Run `npm run package`.
-4. Upload `git-sound-report-0.2.0.vsix` in Marketplace publisher management.
+4. Upload `report-tags-0.2.0.vsix` in Marketplace publisher management.
 5. Review the rendered README, icon, category, and links before making it public.
 
 For CLI publishing later:
@@ -63,7 +63,7 @@ Microsoft recommends Entra ID based automated publishing for CI/CD. Global Azure
 
 1. Push the source repo publicly to `https://github.com/Steeve-Crypto/Report-Tags`.
 2. Create a GitHub release named `v0.2.0`.
-3. Attach `git-sound-report-0.2.0.vsix`.
+3. Attach `report-tags-0.2.0.vsix`.
 4. Add install instructions for Marketplace and VSIX users.
 5. Pin a sponsor link to `https://github.com/sponsors/Steeve-Crypto`.
 6. Add topics: `vscode-extension`, `git`, `productivity`, `developer-tools`, `posthog`, `gamification`.
