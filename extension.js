@@ -4,8 +4,6 @@ const fs = require('fs');
 const https = require('https');
 const os = require('os');
 const path = require('path');
-const { analyzeRepository, classifyGitEvent } = require('./gitAnalyzer');
-const { getSoundProfile, getSoundProfilePath } = require('./soundProfiles');
 
 const EXTENSION_ID = 'git-sound-report';
 const DEFAULT_POSTHOG_HOST = 'https://us.i.posthog.com';
@@ -38,7 +36,7 @@ function activate(context) {
 function registerCommands(context) {
   context.subscriptions.push(
     vscode.commands.registerCommand('gitSoundReport.playTestSound', async () => {
-      await celebrate('test_sound', { source: 'command', analysis: classifyGitEvent({ eventName: 'test_sound', message: 'feature ship test sound' }) });
+      await celebrate('test_sound', { source: 'command', command: 'feature ship test sound' });
       vscode.window.showInformationMessage('Git Sound Report test sound played.');
     }),
     vscode.commands.registerCommand('gitSoundReport.toggleEnabled', async () => {
@@ -94,15 +92,11 @@ function registerTerminalDetection(context) {
       return;
     }
 
-    const workspacePath = getWorkspacePathForTerminal(event.terminal);
-    const analysis = await analyzeRepository(workspacePath, gitEvent, commandLine);
-
     await celebrate(gitEvent, {
       source: 'terminal',
       command: sanitizeCommand(commandLine),
       exitCode,
-      workspacePath,
-      analysis
+      workspacePath: getWorkspacePathForTerminal(event.terminal)
     });
   }));
 }
@@ -162,11 +156,9 @@ function observeRepository(context, repo) {
     }
 
     if (previous.head !== next.head && next.head) {
-      const analysis = await analyzeRepository(root, 'commit', '');
       await celebrate('commit', {
         source: 'vscode_git_api',
-        workspacePath: root,
-        analysis
+        workspacePath: root
       });
     }
   });
@@ -253,9 +245,7 @@ function readGitHookEvents(filePath) {
         const event = JSON.parse(line);
         const eventName = event.event || 'git_success';
         const workspacePath = getWorkspacePathForFile(filePath);
-        analyzeRepository(workspacePath, eventName, '').then((analysis) => {
-          celebrate(eventName, { source: event.source || 'git_hook', workspacePath, analysis });
-        });
+        celebrate(eventName, { source: event.source || 'git_hook', workspacePath });
       } catch {
         log(`Ignored malformed hook event: ${line}`);
       }
@@ -271,7 +261,7 @@ async function showStatus() {
   const message = [
     `Enabled: ${config.get('enabled', true) ? 'yes' : 'no'}`,
     `Telemetry: ${telemetryEnabled ? 'enabled' : 'disabled'}`,
-    `Sound: ${getSoundPath(config, 'feature_ship') || 'system fallback'}`
+    `Sound: ${getSoundPath(config) || 'adaptive bundled sound'}`
   ].join(' | ');
 
   const choice = await vscode.window.showInformationMessage(
@@ -308,25 +298,32 @@ async function celebrate(eventName, properties = {}) {
     return;
   }
 
-  const analysis = properties.analysis || classifyGitEvent({ eventName, command: properties.command });
-  const profile = getSoundProfile(analysis.profile);
+  const analysis = await playSound(config, {
+    eventName,
+    command: properties.command,
+    workspacePath: properties.workspacePath
+  });
 
-  playSound(config, analysis.profile);
-  capture('git_success_detected', {
+  const telemetryProperties = {
     gitEvent: eventName,
     source: properties.source,
     exitCode: properties.exitCode,
-    soundProfile: analysis.profile,
-    soundProfileLabel: profile.label,
-    intent: analysis.intent,
-    risk: analysis.risk,
-    scale: analysis.scale,
-    fileCount: analysis.fileCount,
-    riskyFileCount: analysis.riskyFileCount,
-    testFileCount: analysis.testFileCount,
-    hasDependencyChange: analysis.hasDependencyChange,
-    hasCiChange: analysis.hasCiChange
-  });
+    soundProfile: analysis && analysis.profile,
+    soundProfileLabel: analysis && analysis.profileLabel,
+    intent: analysis && analysis.intent,
+    risk: analysis && analysis.risk,
+    scale: analysis && analysis.scale,
+    fileCount: analysis && analysis.fileCount,
+    filesChanged: analysis && analysis.filesChanged,
+    insertions: analysis && analysis.insertions,
+    deletions: analysis && analysis.deletions,
+    riskyFileCount: analysis && analysis.riskyFileCount,
+    testFileCount: analysis && analysis.testFileCount,
+    hasDependencyChange: analysis && analysis.hasDependencyChange,
+    hasCiChange: analysis && analysis.hasCiChange
+  };
+
+  capture('git_success_detected', telemetryProperties);
 }
 
 function isAllowedEvent(eventName, config) {
@@ -375,37 +372,57 @@ function sanitizeCommand(commandLine) {
     .replace(/--password(?:=|\s+)\S+/gi, '--password [redacted]');
 }
 
-function playSound(config, profileName) {
+function playSound(config, eventContext) {
   const scriptPath = path.join(__dirname, 'play_sound.py');
-  const soundPath = getSoundPath(config, profileName);
+  const soundPath = getSoundPath(config);
   const pythonCandidates = getPythonCandidates(config);
-  runPythonSound(scriptPath, soundPath, pythonCandidates, 0);
+  return runPythonSound(scriptPath, soundPath, pythonCandidates, 0, eventContext);
 }
 
-function runPythonSound(scriptPath, soundPath, candidates, index) {
+function runPythonSound(scriptPath, soundPath, candidates, index, eventContext) {
   const executable = candidates[index];
   if (!executable) {
     log('No Python executable worked. Using VS Code notification only.');
-    return;
+    return Promise.resolve(null);
   }
 
   const args = executable === 'py' ? ['-3', scriptPath] : [scriptPath];
+  args.push('--event', eventContext.eventName || 'git_success');
+  args.push('--extension-dir', __dirname);
+  args.push('--intelligent', String(getConfig().get('intelligentSound.enabled', true)));
+  if (eventContext.workspacePath) {
+    args.push('--workspace', eventContext.workspacePath);
+  }
+  if (eventContext.command) {
+    args.push('--command', eventContext.command);
+  }
   if (soundPath) {
-    args.push(soundPath);
+    args.push('--sound-path', soundPath);
   }
 
-  const child = spawn(executable, args, {
-    cwd: __dirname,
-    windowsHide: true,
-    shell: false
-  });
+  return new Promise((resolve) => {
+    let stdout = '';
+    const child = spawn(executable, args, {
+      cwd: __dirname,
+      windowsHide: true,
+      shell: false
+    });
 
-  child.on('error', (error) => {
-    log(`Python sound failed with ${executable}: ${error.message}`);
-    runPythonSound(scriptPath, soundPath, candidates, index + 1);
-  });
+    child.stdout.on('data', (data) => {
+      stdout += String(data);
+    });
 
-  child.stderr.on('data', (data) => log(String(data).trim()));
+    child.stderr.on('data', (data) => log(String(data).trim()));
+
+    child.on('error', (error) => {
+      log(`Python sound failed with ${executable}: ${error.message}`);
+      runPythonSound(scriptPath, soundPath, candidates, index + 1, eventContext).then(resolve);
+    });
+
+    child.on('close', () => {
+      resolve(parsePythonAnalysis(stdout));
+    });
+  });
 }
 
 function getPythonCandidates(config) {
@@ -415,25 +432,24 @@ function getPythonCandidates(config) {
     .filter((value, index, values) => values.indexOf(value) === index);
 }
 
-function getSoundPath(config, profileName) {
+function parsePythonAnalysis(stdout) {
+  const lines = String(stdout || '').trim().split(/\r?\n/).filter(Boolean);
+  for (let index = lines.length - 1; index >= 0; index -= 1) {
+    try {
+      return JSON.parse(lines[index]);
+    } catch {
+      // Ignore non-JSON output such as terminal bell fallback.
+    }
+  }
+  return null;
+}
+
+function getSoundPath(config) {
   const configuredPath = config.get('soundPath', '');
   if (configuredPath && fs.existsSync(configuredPath)) {
     return configuredPath;
   }
-
-  if (config.get('intelligentSound.enabled', true) && profileName) {
-    const profilePath = getSoundProfilePath(__dirname, profileName);
-    if (fs.existsSync(profilePath)) {
-      return profilePath;
-    }
-  }
-
-  const bundledCandidates = [
-    path.join(__dirname, 'assets', 'report_tag_success.wav'),
-    path.join(__dirname, 'report_tag_success.mp3')
-  ];
-
-  return bundledCandidates.find((candidate) => fs.existsSync(candidate)) || '';
+  return '';
 }
 
 function capture(event, properties = {}) {

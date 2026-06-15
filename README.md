@@ -10,7 +10,7 @@ Git Sound Report adds lightweight audio feedback to successful Git work in VS Co
 - Successful terminal Git command detection when VS Code shell integration reports command completion
 - Optional repository Git hooks for commit, merge, and checkout events
 - VS Code Git API commit detection for source-control UI workflows
-- Intelligent local sound profiles based on commit intent, change size, test files, and risky files
+- Python-powered intelligent local sound profiles based on commit intent, change size, test files, and risky files
 - Bundled default success sound and Marketplace icon
 - Configurable enabled events and custom sound file path
 - Status bar control with quick actions
@@ -46,7 +46,7 @@ Default sponsor URL: `https://github.com/sponsors/Steeve-Crypto`
 
 ## Intelligent Sound Profiles
 
-The first AI layer is local-first and rule-based. Git Sound Report inspects Git metadata, not source contents, to choose one of these profiles:
+The first AI layer is Python-powered, local-first, and rule-based. Git Sound Report inspects Git metadata, not source contents, to choose one of these profiles:
 
 - `tiny_win`
 - `bug_fix`
@@ -56,7 +56,7 @@ The first AI layer is local-first and rule-based. Git Sound Report inspects Git 
 - `test_green`
 - `major_release`
 
-Signals include commit message keywords, changed file names, file counts, insertion/deletion counts, dependency files, CI files, tests, migrations, auth, billing, database, and security paths. This gives the product an adaptive feel now while leaving room for optional cloud AI later.
+Signals include commit message keywords, changed file names, file counts, insertion/deletion counts, dependency files, CI files, tests, migrations, auth, billing, database, and security paths. The VS Code JavaScript layer only captures editor events and spawns Python; the intelligence and audio choice live in `play_sound.py`.
 
 ## Product Model
 

@@ -6,5 +6,7 @@ MARKETPLACE-LISTING.md
 LAUNCH.md
 git-sound-report-*.vsix
 node_modules/**
+__pycache__/**
+*.pyc
 npm-debug.log
 .vscode/**
