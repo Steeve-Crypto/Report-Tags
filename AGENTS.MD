@@ -1,33 +1,57 @@
 # AGENTS.MD - Git Sound Report Extension
 
-## Project Overview
-**Agent Role**: Athena (CTO/Finance Focus) - Architecting revenue-generating dev tools.
+Always read this file before any work
 
-### Core Components
-- **extension.js**: VS Code JS entry (activation, terminal/git hooks, Python spawn)
-- **play_sound.py**: Python audio handler (playsound lib, extensible)
-- **C++ Potential**: Native Node addon for low-latency audio (Windows PlaySound, macOS, Linux)
+## Strategic Vision (- CTO/Finance Focus)
+This VS Code extension is the MVP for a **revenue-generating developer productivity platform**. 
+Core hook: Celebratory "report tag" audio feedback on successful Git production commands (add, commit, push to GitHub). 
+**Goal**: Drive emotional engagement → retention → monetization funnel.
 
-### Architecture Decisions (CTO Lens)
-- Hybrid stack: JS (VS Code API) + Python (easy audio/cross-platform) + C++ (perf)
-- No TS for minimalism/speed
-- Sound triggers on git production success → Gamification → User retention
+**Primary Agent Role**: Oversees technical architecture, financial modeling, and product roadmap for sustainable revenue.
 
-### Monetization Strategy
-- Marketplace: Free core + Paid sound packs, streak analytics, team features
-- Upsell: Enterprise "Deploy Celebration" dashboards
-- Revenue Streams: In-app purchases, sponsorships (audio libs), GitHub integration premium
+### Project Architecture
+- **Extension Layer**: `extension.js` (pure JS) — VS Code API integration, command registration, terminal/Git event monitoring, Python spawning.
+- **Audio Engine**: `play_sound.py` — Python (playsound or pygame) for cross-platform sound playback. Easy to swap sound packs.
+- **Performance Layer (Future)**: C++ Node native addon for ultra-low-latency system audio (Windows `PlaySound`, macOS `NSSound`, Linux ALSA/PulseAudio).
+- **Detection Strategy**: Hybrid — VS Code Git API + terminal output parsing + Git post-hooks for reliable success signals.
 
-### Roadmap
-1. Terminal output parsing for success detection
-2. Git API hooks
-3. Configurable sounds/volume
-4. C++ native module
-5. Analytics telemetry (opt-in)
+**Tech Stack Rationale (CTO Lens)**:
+- Minimal footprint, fast iteration.
+- Python for rapid audio experimentation.
+- C++ for enterprise-grade performance in high-volume CI/CD monitoring.
 
-### Build & Deploy
-- `vsce package`
-- Publish to VS Marketplace
-- Track downloads → Iterate on premium features
+### Monetization & Revenue Plan
+1. **Freemium Model** (Core free on VS Marketplace):
+   - Base sounds + basic triggers.
+2. **Premium Tiers**:
+   - Custom sound packs ($4.99–$9.99 one-time or subscription).
+   - Streak counters, leaderboards, analytics dashboard.
+   - Team/Enterprise: Shared celebrations, Slack/Teams integration, deployment metrics.
+3. **Additional Streams**:
+   - Sponsorships from audio tools, GitHub, or dev tooling companies.
+   - Affiliate revenue via linked premium services.
+   - White-label "Deploy Party" modules for other IDEs.
+4. **Metrics to Track**: Downloads, activation rate, premium conversion (target 8-12%), retention via sound feedback loops.
 
-**Status**: MVP Ready. Scalable for productized SaaS extension ecosystem.
+**Projected Revenue**: Start with 10k users → 5% conversion = meaningful MRR. Scale into full Athena Productivity Suite.
+
+### Roadmap & Agent Tasks
+- **Phase 1 (MVP - Done)**: Basic sound on test + git hooks.
+- **Phase 2**: Robust success detection, config UI, multiple sounds.
+- **Phase 3**: C++ native module + telemetry.
+- **Phase 4**: Marketplace publishing + paid features rollout.
+- **Phase 5**: Expand to other CI/CD events, build status sounds, full gamification.
+
+### File Inventory
+- `package.json` — Manifest + contributes
+- `extension.js` — Activation & orchestration
+- `play_sound.py` — Sound player
+- `report_tag_success.mp3` (placeholder — add your file)
+- `README.md` — User guide
+
+**Status**: Production-ready MVP. Ready for packaging and launch.
+
+**Next Financial/Technical Priorities**:
+- A/B test sound variants for engagement.
+- Implement opt-in analytics for conversion funnel optimization.
+- Prepare .vsix for immediate distribution.

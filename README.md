@@ -6,7 +6,6 @@ Plays a celebratory "report tag" sound on successful `git add`, `git commit`, `g
 - Sound on git success (Python backend)
 - Test command in palette
 - Ready for C++ native audio addon
-- Monetization-ready (premium sounds, streaks)
 
 ## Setup
 1. `npm install` (if adding deps)
@@ -15,7 +14,7 @@ Plays a celebratory "report tag" sound on successful `git add`, `git commit`, `g
 4. Package: `vsce package`
 5. Install .vsix
 
-Built with Python + JS (no TS). C++ for native perf optional.
+Built with Python + JS. C++ for native perf optional.
 # Git Sound Report VS Code Extension
 
 Plays a celebratory 'report tag' sound on successful git add, commit, push to GitHub.
@@ -32,3 +31,25 @@ Plays a celebratory 'report tag' sound on successful git add, commit, push to Gi
 - C++ can be integrated via Node addon for native performance (advanced).
 
 To enhance monitoring, consider git hooks or better terminal parsing.
+# Native C++ Sound Addon (Enterprise)
+
+For low-latency, native audio playback without Python dependency.
+
+## Build
+```bash
+cd native-sound
+npm install node-addon-api
+node-gyp configure build
+```
+
+Then in extension.js:
+```js
+const nativeSound = require('./native-sound/build/Release/soundaddon.node');
+nativeSound.playReportTag();
+```
+
+**Enterprise Benefits**: 
+- Zero Python overhead
+- Better security/compliance
+- Faster response for high-frequency events
+- Custom audio mixing

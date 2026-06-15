@@ -1,15 +1,15 @@
 {
   "name": "git-sound-report",
   "displayName": "Git Sound Report",
-  "description": "Plays a sound effect on successful git production commands to GitHub",
-  "version": "0.0.1",
-  "publisher": "yourname",
+  "description": "Plays celebratory 'report tag' sound effects on successful git production commands (add, commit, push to GitHub). Gamified dev experience!",
+  "version": "0.1.0",
+  "publisher": "athena-devtools",
   "engines": {
-    "vscode": "^1.80.0"
+    "vscode": "^1.85.0"
   },
   "categories": ["Other"],
   "activationEvents": [
-    "onTerminalOpen",
+    "onStartupFinished",
     "workspaceContains:.git"
   ],
   "main": "./extension.js",
@@ -17,11 +17,17 @@
     "commands": [
       {
         "command": "gitSoundReport.playTestSound",
-        "title": "Play Test Sound"
+        "title": "Git Sound Report: Play Test Sound"
       }
     ]
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "package": "vsce package"
+  },
+  "keywords": ["git", "sound", "celebration", "productivity", "gamification"],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/git-sound-report"
   }
 }
