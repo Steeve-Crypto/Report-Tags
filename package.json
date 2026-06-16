@@ -37,47 +37,47 @@
     "commands": [
       {
         "command": "gitSoundReport.playTestSound",
-        "title": "Space Report: Play Test Sound",
+        "title": "Play Test Sound",
         "category": "Space Report"
       },
       {
         "command": "gitSoundReport.showStatus",
-        "title": "Space Report: Show Status",
+        "title": "Show Status",
         "category": "Space Report"
       },
       {
         "command": "gitSoundReport.toggleEnabled",
-        "title": "Space Report: Toggle Enabled",
+        "title": "Toggle Enabled",
         "category": "Space Report"
       },
       {
         "command": "gitSoundReport.installGitHooks",
-        "title": "Space Report: Install Git Hooks",
+        "title": "Install Git Hooks",
         "category": "Space Report"
       },
       {
         "command": "gitSoundReport.openSponsor",
-        "title": "Space Report: Sponsor",
+        "title": "Sponsor",
         "category": "Space Report"
       },
       {
         "command": "gitSoundReport.feedbackUp",
-        "title": "Space Report: Like Last Sound",
+        "title": "Like Last Sound",
         "category": "Space Report"
       },
       {
         "command": "gitSoundReport.feedbackDown",
-        "title": "Space Report: Dislike Last Sound",
+        "title": "Dislike Last Sound",
         "category": "Space Report"
       },
       {
         "command": "gitSoundReport.setPostHogApiKey",
-        "title": "Space Report: Set PostHog API Key",
+        "title": "Save PostHog Token",
         "category": "Space Report"
       },
       {
         "command": "gitSoundReport.clearPostHogApiKey",
-        "title": "Space Report: Clear PostHog API Key",
+        "title": "Remove PostHog Token",
         "category": "Space Report"
       }
     ],
@@ -149,7 +149,7 @@
         "git-sound-report.postHogProjectApiKey": {
           "type": "string",
           "default": "",
-          "description": "Legacy fallback PostHog project API key. Prefer the Set PostHog API Key command, which stores the key in VS Code SecretStorage."
+          "description": "Legacy fallback PostHog project token. Prefer the Save PostHog Token command, which stores the token in VS Code SecretStorage."
         },
         "git-sound-report.postHogHost": {
           "type": "string",
