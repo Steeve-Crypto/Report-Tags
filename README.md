@@ -1,12 +1,12 @@
-# Git Sound Report
+# Space Report
 
-Git Sound Report adds lightweight audio feedback to successful Git work in VS Code. The free core is intentionally fun: when `git add`, `git commit`, `git push`, merge, or checkout succeeds, the extension plays a report-tag style sound.
+Space Report adds lightweight audio feedback to successful Git work in VS Code. The free core is intentionally fun: when `git add`, `git commit`, `git push`, merge, or checkout succeeds, the extension plays a report-tag style sound.
 
-![Git Sound Report demo](demo.gif)
+![Space Report demo](demo.gif)
 
 ## What Works
 
-- Command Palette test sound: `Git Sound Report: Play Test Sound`
+- Command Palette test sound: `Space Report: Play Test Sound`
 - Successful terminal Git command detection when VS Code shell integration reports command completion
 - Optional repository Git hooks for commit, merge, and checkout events
 - VS Code Git API commit detection for source-control UI workflows
@@ -24,9 +24,9 @@ Git Sound Report adds lightweight audio feedback to successful Git work in VS Co
 ## Setup
 
 1. Install the extension.
-2. Run `Git Sound Report: Play Test Sound`.
+2. Run `Space Report: Play Test Sound`.
 3. Optional: set `git-sound-report.soundPath` to an absolute `.wav` or `.mp3` path. If unset, the bundled WAV is used.
-4. Optional: run `Git Sound Report: Install Git Hooks` for more reliable local commit, merge, and checkout detection.
+4. Optional: run `Space Report: Install Git Hooks` for more reliable local commit, merge, and checkout detection.
 
 The extension uses Python for audio playback because it keeps the MVP small and cross-platform. If Python audio packages are unavailable, it falls back to a system notification sound.
 
@@ -41,7 +41,7 @@ The extension uses Python for audio playback because it keeps the MVP small and 
 - `git-sound-report.teamDeploy.enabled`: enable deploy and major-release webhook summaries.
 - `git-sound-report.teamDeploy.webhookUrl`: Slack, Teams, or compatible webhook URL.
 - `git-sound-report.telemetry.enabled`: opt-in analytics switch.
-- `git-sound-report.postHogProjectApiKey`: legacy fallback only. Prefer `Git Sound Report: Set PostHog API Key`.
+- `git-sound-report.postHogProjectApiKey`: legacy fallback only. Prefer `Space Report: Set PostHog API Key`.
 - `git-sound-report.postHogHost`: PostHog capture host.
 - `git-sound-report.sponsorUrl`: sponsor conversion URL.
 
@@ -49,7 +49,7 @@ Telemetry is disabled by default and is not sent unless `telemetry.enabled` is t
 
 ## PostHog Setup
 
-Use the Command Palette command `Git Sound Report: Set PostHog API Key`. The key is stored in VS Code SecretStorage, not in the repo.
+Use the Command Palette command `Space Report: Set PostHog API Key`. The key is stored in VS Code SecretStorage, not in the repo.
 
 Then enable telemetry in user settings:
 
@@ -65,7 +65,7 @@ Default sponsor URL: `https://github.com/sponsors/Steeve-Crypto`
 
 ## Intelligent Sound Profiles
 
-The first AI layer is Python-powered, local-first, and rule-based. Git Sound Report inspects Git metadata, not source contents, to choose one of these profiles:
+The first AI layer is Python-powered, local-first, and rule-based. Space Report inspects Git metadata, not source contents, to choose one of these profiles:
 
 - `tiny_win`
 - `bug_fix`

@@ -21,7 +21,7 @@ const hookFileOffsets = new Map();
 
 function activate(context) {
   extensionContext = context;
-  output = vscode.window.createOutputChannel('Git Sound Report');
+  output = vscode.window.createOutputChannel('Space Report');
   context.subscriptions.push(output);
 
   userId = getOrCreateUserId(context);
@@ -40,14 +40,14 @@ function registerCommands(context) {
   context.subscriptions.push(
     vscode.commands.registerCommand('gitSoundReport.playTestSound', async () => {
       await celebrate('test_sound', { source: 'command', command: 'feature ship test sound' });
-      vscode.window.showInformationMessage('Git Sound Report test sound played.');
+      vscode.window.showInformationMessage('Space Report test sound played.');
     }),
     vscode.commands.registerCommand('gitSoundReport.toggleEnabled', async () => {
       const config = getConfig();
       const nextValue = !config.get('enabled', true);
       await config.update('enabled', nextValue, vscode.ConfigurationTarget.Global);
       updateStatusBar();
-      vscode.window.showInformationMessage(`Git Sound Report is now ${nextValue ? 'enabled' : 'disabled'}.`);
+      vscode.window.showInformationMessage(`Space Report is now ${nextValue ? 'enabled' : 'disabled'}.`);
       capture('enabled_toggled', { enabled: nextValue });
     }),
     vscode.commands.registerCommand('gitSoundReport.installGitHooks', installGitHooks),
@@ -67,7 +67,7 @@ function registerCommands(context) {
 function registerStatusBar(context) {
   statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 100);
   statusBarItem.command = 'gitSoundReport.showStatus';
-  statusBarItem.tooltip = 'Git Sound Report';
+  statusBarItem.tooltip = 'Space Report';
   context.subscriptions.push(statusBarItem);
   updateStatusBar();
   statusBarItem.show();
@@ -202,7 +202,7 @@ async function installGitHooks() {
     return;
   }
 
-  vscode.window.showInformationMessage(`Installed Git Sound Report hooks in ${installed} workspace${installed === 1 ? '' : 's'}.`);
+  vscode.window.showInformationMessage(`Installed Space Report hooks in ${installed} workspace${installed === 1 ? '' : 's'}.`);
   capture('git_hooks_installed', { workspaceCount: installed });
 }
 
@@ -356,7 +356,7 @@ async function recordFeedback(direction) {
   const config = getConfig();
   const result = await runPythonControl(config, ['--feedback', direction]);
   if (result) {
-    vscode.window.showInformationMessage(`Git Sound Report ${direction === 'up' ? 'liked' : 'disliked'} ${result.profile} sound.`);
+    vscode.window.showInformationMessage(`Space Report ${direction === 'up' ? 'liked' : 'disliked'} ${result.profile} sound.`);
     capture('sound_feedback_recorded', {
       direction,
       soundProfile: result.profile,

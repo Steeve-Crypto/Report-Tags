@@ -2,7 +2,7 @@
 
 ## Display Name
 
-Git Sound Report
+Space Report
 
 ## Short Description
 
@@ -10,7 +10,7 @@ Celebratory adaptive audio feedback for successful Git commands.
 
 ## Full Description
 
-Make Git wins feel rewarding. Git Sound Report plays a short celebratory sound when successful Git activity is detected in VS Code.
+Make Git wins feel rewarding. Space Report plays a short celebratory sound when successful Git activity is detected in VS Code.
 
 ### Features
 
@@ -35,9 +35,9 @@ Telemetry is off by default. PostHog events are sent only when users explicitly 
 ### Quick Start
 
 1. Install the extension.
-2. Run `Git Sound Report: Play Test Sound`.
+2. Run `Space Report: Play Test Sound`.
 3. Optional: configure `git-sound-report.soundPath`.
-4. Optional: run `Git Sound Report: Install Git Hooks`.
+4. Optional: run `Space Report: Install Git Hooks`.
 
 ## Publisher Checklist
 

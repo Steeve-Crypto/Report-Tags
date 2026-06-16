@@ -1,6 +1,6 @@
 {
-  "name": "Space-Report",
-  "displayName": "Git Space Report",
+  "name": "space-report",
+  "displayName": "Space Report",
   "description": "Celebratory adaptive audio feedback for successful Git commands.",
   "version": "0.2.0",
   "publisher": "Haquant",
@@ -37,52 +37,52 @@
     "commands": [
       {
         "command": "gitSoundReport.playTestSound",
-        "title": "Git Sound Report: Play Test Sound",
-        "category": "Git Sound Report"
+        "title": "Space Report: Play Test Sound",
+        "category": "Space Report"
       },
       {
         "command": "gitSoundReport.showStatus",
-        "title": "Git Sound Report: Show Status",
-        "category": "Git Sound Report"
+        "title": "Space Report: Show Status",
+        "category": "Space Report"
       },
       {
         "command": "gitSoundReport.toggleEnabled",
-        "title": "Git Sound Report: Toggle Enabled",
-        "category": "Git Sound Report"
+        "title": "Space Report: Toggle Enabled",
+        "category": "Space Report"
       },
       {
         "command": "gitSoundReport.installGitHooks",
-        "title": "Git Sound Report: Install Git Hooks",
-        "category": "Git Sound Report"
+        "title": "Space Report: Install Git Hooks",
+        "category": "Space Report"
       },
       {
         "command": "gitSoundReport.openSponsor",
-        "title": "Git Sound Report: Sponsor",
-        "category": "Git Sound Report"
+        "title": "Space Report: Sponsor",
+        "category": "Space Report"
       },
       {
         "command": "gitSoundReport.feedbackUp",
-        "title": "Git Sound Report: Like Last Sound",
-        "category": "Git Sound Report"
+        "title": "Space Report: Like Last Sound",
+        "category": "Space Report"
       },
       {
         "command": "gitSoundReport.feedbackDown",
-        "title": "Git Sound Report: Dislike Last Sound",
-        "category": "Git Sound Report"
+        "title": "Space Report: Dislike Last Sound",
+        "category": "Space Report"
       },
       {
         "command": "gitSoundReport.setPostHogApiKey",
-        "title": "Git Sound Report: Set PostHog API Key",
-        "category": "Git Sound Report"
+        "title": "Space Report: Set PostHog API Key",
+        "category": "Space Report"
       },
       {
         "command": "gitSoundReport.clearPostHogApiKey",
-        "title": "Git Sound Report: Clear PostHog API Key",
-        "category": "Git Sound Report"
+        "title": "Space Report: Clear PostHog API Key",
+        "category": "Space Report"
       }
     ],
     "configuration": {
-      "title": "Git Sound Report",
+      "title": "Space Report",
       "properties": {
         "git-sound-report.enabled": {
           "type": "boolean",

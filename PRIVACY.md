@@ -1,11 +1,11 @@
 # Privacy
 
-Git Sound Report does not send telemetry by default.
+Space Report does not send telemetry by default.
 
 PostHog analytics are sent only when telemetry is enabled and a PostHog key is available:
 
 - `git-sound-report.telemetry.enabled`: `true`
-- PostHog project API key saved with `Git Sound Report: Set PostHog API Key`
+- PostHog project API key saved with `Space Report: Set PostHog API Key`
 
 When enabled, events may include:
 
